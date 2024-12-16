@@ -1,0 +1,47 @@
+{
+  "executive_summary": "Nattawut Intanai is an enthusiastic Data Engineer with extensive experience in Business Intelligence and Data Analytics. He has a proven track record in ETL operations, data visualization, and managing data systems across various industries. With a strong foundation in SQL and Python, Nattawut is adept at building efficient data pipelines and delivering actionable insights to drive business decisions. His education in Business Information Systems complements his practical experience, making him a well-rounded candidate for data engineering roles.",
+  "fit_analysis": {
+    "overall_assessment": "Nattawut demonstrates a solid alignment with the Data Engineer role, particularly in his experience with SQL, Python, and ETL processes. His background in BI and data analytics equips him with the necessary skills to shape data-driven insights and create optimized data pipelines. However, while he has experience with big data tools, further exposure to specific tools like Spark and Hadoop in a data engineering context would enhance his fit for the role.",
+    "fit_score": 85
+  },
+  "key_strengths": {
+    "skills": [
+      "SQL",
+      "Python",
+      "ETL processes",
+      "Data visualization (Power BI, Tableau)",
+      "BigQuery",
+      "Azure",
+      "Data pipeline management"
+    ],
+    "experience": [
+      "5+ years in Business Intelligence and Data Engineering",
+      "Hands-on experience with ETL tools like Talend",
+      "Development of data models and dashboards for actionable insights"
+    ],
+    "notable_achievements": [
+      "Successfully integrated data from on-premise systems to Azure databases",
+      "Designed and maintained efficient data pipelines and infrastructure",
+      "Optimized BI processes for improved reporting performance"
+    ]
+  },
+  "areas_for_development": {
+    "skills_gaps": [
+      "Experience with big data tools like Spark and Hadoop in a data engineering context",
+      "Advanced data pipeline orchestration techniques"
+    ],
+    "experience_gaps": [
+      "Exposure to real-time data processing and streaming technologies",
+      "Leadership experience in guiding junior engineers"
+    ],
+    "recommendations": [
+      "Engage in online courses or certifications focusing on Spark and Hadoop",
+      "Seek opportunities to lead projects or mentor junior team members to develop leadership skills"
+    ]
+  },
+  "score_breakdown": {
+    "skills_match": 90,
+    "experience_match": 80
+  },
+  "interesting_fact": "Nattawut has experience working with diverse BI tools and has successfully managed data pipelines in Azure, showcasing his adaptability and technical proficiency in cloud environments."
+}
