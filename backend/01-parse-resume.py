@@ -80,56 +80,57 @@ try:
                 
                 # Step 2: Use OpenAI to convert markdown to structured JSON
                 completion = openai_client.chat.completions.create(
-                    model=llm_model,  # Use the model from env
+                    model=llm_model,
                     response_format={"type": "json_object"},
                     messages=[
                         {
                             "role": "system",
-                            "content": """You are a precise resume parser. Convert the resume into a structured JSON format that exactly matches this schema:
+                            "content": """You are a precise resume parser. Convert the resume into a structured JSON format that matches this schema:
                             {
                                 "contact_info": {
-                                    "name": "string",
-                                    "phone": "string or null",
-                                    "email": "string or null",
-                                    "linkedin": "string or null (must include https:// prefix)",
-                                    "address": "string or null"
+                                    "name": "Full name of the person",
+                                    "phone": "Phone number in format +1-234-567-8900 or null if not found",
+                                    "email": "Email address like example@domain.com or null if not found",
+                                    "linkedin": "Full LinkedIn URL starting with https:// or null if not found",
+                                    "address": "Physical address or null if not found"
                                 },
-                                "summary": "string",
+                                "summary": "Professional summary text",
                                 "work_experience": [
                                     {
-                                        "job_title": "string",
-                                        "company": "string",
+                                        "job_title": "Actual job title",
+                                        "company": "Company name",
                                         "dates": {
                                             "start": "YYYY-MM",
                                             "end": "YYYY-MM or Present"
                                         },
-                                        "responsibilities": ["string"]
+                                        "responsibilities": ["List of actual job responsibilities"]
                                     }
                                 ],
                                 "education": [
                                     {
-                                        "degree": "string or null",
-                                        "major": "string",
-                                        "institution": "string",
+                                        "degree": "Degree name or null if not specified",
+                                        "major": "Field of study",
+                                        "institution": "School/University name",
                                         "graduation_date": "YYYY-MM"
                                     }
                                 ],
-                                "skills": ["string"],
+                                "skills": ["Actual skill 1", "Actual skill 2"],
                                 "additional_info": {
-                                    "projects": ["string"] or null,
-                                    "awards": ["string"] or null,
-                                    "publications": ["string"] or null,
-                                    "volunteer": ["string"] or null
+                                    "projects": ["Actual project descriptions"] or null,
+                                    "awards": ["Actual awards"] or null,
+                                    "publications": ["Actual publications"] or null,
+                                    "volunteer": ["Actual volunteer work"] or null
                                 }
                             }
 
                             Rules:
-                            1. Extract all information exactly as presented
-                            2. Format dates as YYYY-MM
-                            3. Use null for missing optional fields
-                            4. Ensure the output exactly matches the schema structure
-                            5. Normalize skill names
-                            6. Always add 'https://' prefix to LinkedIn URLs if not present"""
+                            1. Extract actual information from the resume - do not include placeholder text
+                            2. For missing information, use null instead of placeholder text
+                            3. Format dates as YYYY-MM
+                            4. Format phone numbers with country code and dashes: +1-234-567-8900
+                            5. Ensure LinkedIn URLs start with https://
+                            6. Email addresses must be valid format: user@domain.com
+                            7. Do not include explanatory text like 'string or null' in the output"""
                         },
                         {
                             "role": "user",
