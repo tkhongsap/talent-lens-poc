@@ -1,9 +1,9 @@
-from typing import List, Optional
-from pydantic import BaseModel, Field, validator
+from typing import List, Optional, Dict, Union
+from pydantic import BaseModel, Field
 
 class DateRange(BaseModel):
-    start: str = Field(description="Start date in YYYY-MM format")
-    end: Optional[str] = Field(description="End date in YYYY-MM format or 'Present'")
+    start: str
+    end: str
 
 class WorkExperience(BaseModel):
     job_title: str
@@ -12,28 +12,28 @@ class WorkExperience(BaseModel):
     responsibilities: List[str]
 
 class Education(BaseModel):
-    degree: Optional[str]
+    degree: Optional[str] = None
     major: str
     institution: str
-    graduation_date: str = Field(description="Date in YYYY-MM format")
+    graduation_date: str
 
 class ContactInfo(BaseModel):
-    name: str
-    phone: Optional[str] = Field(pattern=r"^\+?[0-9()-.\s]{10,}$")
-    email: Optional[str] = Field(pattern=r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
-    linkedin: Optional[str] = Field(pattern=r"^(?:https?:\/\/)?(?:[a-z]{2,3}\.)?linkedin\.com\/.*$")
-    address: Optional[str]
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    linkedin: Optional[str] = None
+    address: Optional[str] = None
 
-    @validator('linkedin')
-    def ensure_linkedin_https(cls, v):
-        if v and not v.startswith(('http://', 'https://')):
-            return f'https://{v}'
-        return v
+class AdditionalInfo(BaseModel):
+    projects: Optional[List[str]] = None
+    awards: Optional[List[str]] = None
+    publications: Optional[List[str]] = None
+    volunteer: Optional[List[str]] = None
 
 class ResumeOutput(BaseModel):
     contact_info: ContactInfo
-    summary: str
+    summary: Optional[str] = None
     work_experience: List[WorkExperience]
     education: List[Education]
     skills: List[str]
-    additional_info: Optional[dict] = None
+    additional_info: Optional[AdditionalInfo] = None

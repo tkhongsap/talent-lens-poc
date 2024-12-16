@@ -34,24 +34,29 @@ ENV/
 *.swo
 .DS_Store
 
-# Project specific - ignore only the contents
+# Project specific - ignore contents but keep directories
 /doc_job_desc/*
 !/doc_job_desc/.gitkeep
 
 /doc_resumes/*
 !/doc_resumes/.gitkeep
 
-/parsed_job_desc/*
-!/parsed_job_desc/.gitkeep
+/parsed_job_desc/json/*
+!/parsed_job_desc/json/.gitkeep
+/parsed_job_desc/markdown/*
+!/parsed_job_desc/markdown/.gitkeep
+/parsed_job_desc/original/*
+!/parsed_job_desc/original/.gitkeep
 
-/parsed_resumes/*
-!/parsed_resumes/.gitkeep
 /parsed_resumes/json/*
 !/parsed_resumes/json/.gitkeep
 /parsed_resumes/markdown/*
 !/parsed_resumes/markdown/.gitkeep
 /parsed_resumes/original/*
 !/parsed_resumes/original/.gitkeep
+
+/relevance_score/*
+!/relevance_score/.gitkeep
 
 # Document files
 *.pdf

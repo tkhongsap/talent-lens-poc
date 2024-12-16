@@ -5,6 +5,7 @@ from llama_parse import LlamaParse
 from dotenv import load_dotenv
 from openai import OpenAI
 from utils.resume_schema import ResumeOutput  # Import the schema from utils
+from utils.prompting_instructions import RESUME_PARSER_SYSTEM_PROMPT  # Import the system prompt
 import json
 
 # Get absolute paths
@@ -85,59 +86,14 @@ try:
                     messages=[
                         {
                             "role": "system",
-                            "content": """You are a precise resume parser. Convert the resume into a structured JSON format that matches this schema:
-                            {
-                                "contact_info": {
-                                    "name": "Full name of the person",
-                                    "phone": "Phone number in format +1-234-567-8900 or null if not found",
-                                    "email": "Email address like example@domain.com or null if not found",
-                                    "linkedin": "Full LinkedIn URL starting with https:// or null if not found",
-                                    "address": "Physical address or null if not found"
-                                },
-                                "summary": "Professional summary text",
-                                "work_experience": [
-                                    {
-                                        "job_title": "Actual job title",
-                                        "company": "Company name",
-                                        "dates": {
-                                            "start": "YYYY-MM",
-                                            "end": "YYYY-MM or Present"
-                                        },
-                                        "responsibilities": ["List of actual job responsibilities"]
-                                    }
-                                ],
-                                "education": [
-                                    {
-                                        "degree": "Degree name or null if not specified",
-                                        "major": "Field of study",
-                                        "institution": "School/University name",
-                                        "graduation_date": "YYYY-MM"
-                                    }
-                                ],
-                                "skills": ["Actual skill 1", "Actual skill 2"],
-                                "additional_info": {
-                                    "projects": ["Actual project descriptions"] or null,
-                                    "awards": ["Actual awards"] or null,
-                                    "publications": ["Actual publications"] or null,
-                                    "volunteer": ["Actual volunteer work"] or null
-                                }
-                            }
-
-                            Rules:
-                            1. Extract actual information from the resume - do not include placeholder text
-                            2. For missing information, use null instead of placeholder text
-                            3. Format dates as YYYY-MM
-                            4. Format phone numbers with country code and dashes: +1-234-567-8900
-                            5. Ensure LinkedIn URLs start with https://
-                            6. Email addresses must be valid format: user@domain.com
-                            7. Do not include explanatory text like 'string or null' in the output"""
+                            "content": RESUME_PARSER_SYSTEM_PROMPT
                         },
                         {
                             "role": "user",
                             "content": f"Parse this resume into structured JSON:\n\n{markdown_content}"
                         }
                     ],
-                    temperature=0.1,
+                    temperature=0.3,
                     seed=42
                 )
                 

@@ -5,6 +5,7 @@ from llama_parse import LlamaParse
 from dotenv import load_dotenv
 from openai import OpenAI
 from utils.resume_schema import ResumeOutput  # Import the schema from utils
+from utils.prompting_instructions import JOB_DESCRIPTION_PARSER_SYSTEM_PROMPT
 import json
 
 # Get absolute paths
@@ -85,31 +86,14 @@ try:
                     messages=[
                         {
                             "role": "system",
-                            "content": """You are a precise job description parser. Convert the job description into a structured JSON format that matches this schema:
-                            {
-                                "job_title": "Title of the job",
-                                "company": "Company offering the job",
-                                "location": "Location of the job",
-                                "employment_type": "Full-time, Part-time, Contract, etc.",
-                                "responsibilities": ["List of job responsibilities"],
-                                "qualifications": ["List of required qualifications"],
-                                "skills": ["List of required skills"],
-                                "benefits": ["List of benefits offered"],
-                                "application_process": "Description of the application process"
-                            }
-
-                            Rules:
-                            1. Extract actual information from the job description - do not include placeholder text
-                            2. For missing information, use null instead of placeholder text
-                            3. Ensure all URLs start with https://
-                            4. Do not include explanatory text like 'string or null' in the output"""
+                            "content": JOB_DESCRIPTION_PARSER_SYSTEM_PROMPT
                         },
                         {
                             "role": "user",
                             "content": f"Parse this job description into structured JSON:\n\n{markdown_content}"
                         }
                     ],
-                    temperature=0.1,
+                    temperature=0.3,
                     seed=42
                 )
                 
