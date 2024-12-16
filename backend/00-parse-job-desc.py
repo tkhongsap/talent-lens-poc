@@ -103,13 +103,15 @@ try:
                 # Save JSON output
                 base_name = splitext(basename(input_path))[0]
                 json_file = join(JSON_DIR, f"{base_name}.json")
-                
                 with open(json_file, "w", encoding="utf-8") as f:
                     json.dump(json_response, f, indent=2)
                 print(f"Saved JSON to: {json_file}")
 
                 # After successful processing, move the original file
                 original_file_path = join(ORIGINAL_DIR, filename)
+                # Check if file exists and remove it before moving
+                if os.path.exists(original_file_path):
+                    os.remove(original_file_path)
                 os.rename(input_path, original_file_path)
                 print(f"Moved original file to: {original_file_path}")
 

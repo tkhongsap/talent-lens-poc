@@ -100,6 +100,8 @@ for resume_filename in resume_files:
 
         # Save output
         output_file = join(OUTPUT_DIR, f"fit_score_{resume_filename}")
+        if os.path.exists(output_file):
+            print(f"{Fore.YELLOW}Overwriting existing fit score file: {output_file}{Style.RESET_ALL}")
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(fit_score, f, indent=2)
         print(f"{Fore.GREEN}{Style.BRIGHT}✓ Saved fit score to: {output_file}{Style.RESET_ALL}")

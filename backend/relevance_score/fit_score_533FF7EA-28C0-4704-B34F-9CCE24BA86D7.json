@@ -1,18 +1,16 @@
 {
-  "executive_summary": "Yuttapichai Lamnaonan is a skilled data engineer with extensive experience in building data pipelines and working with multi-tenant data architectures. He possesses a solid background in machine learning and AI, which he effectively applies to meet business requirements. Yuttapichai is driven to make data accessible and is eager to learn, showcasing a proactive approach to his professional development.",
+  "executive_summary": "Yuttapichai Lamnaonan is a skilled Data Engineer with extensive hands-on experience in building data pipelines and managing multi-tenant data architectures. He has a solid background in machine learning and AI, which he applies to meet business requirements. Yuttapichai is eager to learn and is committed to making data accessible for all stakeholders.",
   "fit_analysis": {
-    "overall_assessment": "Yuttapichai demonstrates a strong fit for data engineering roles, particularly those requiring expertise in data pipeline construction and real-time data processing. His current position as a Data Engineer Supervisor, along with his previous experience at Accenture and AIGEN, aligns well with the responsibilities typically expected in data engineering positions. His technical skills in various programming languages and cloud platforms further enhance his suitability for such roles.",
+    "overall_assessment": "Yuttapichai is a strong fit for the Data Engineer role due to his extensive experience in building and optimizing data pipelines, as well as his familiarity with key technologies such as SQL and Python. His current role as a Data Engineer Supervisor demonstrates his capability to lead projects and collaborate effectively with team members. However, while he has experience with big data tools, further exposure to specific tools like Spark and Hadoop would enhance his fit.",
     "fit_score": 85
   },
   "key_strengths": {
     "skills": [
       "Python",
       "SQL",
-      "AWS",
-      "Airflow",
-      "PySpark",
-      "Data Lake",
-      "Machine Learning"
+      "Data Pipeline Orchestration",
+      "Automation",
+      "Data Architecture"
     ],
     "experience": [
       "Data Engineer Supervisor at AP (Thailand)",
@@ -20,28 +18,26 @@
       "Software Developer at AIGEN"
     ],
     "notable_achievements": [
-      "Automated data collection reducing manual intervention by 40%",
-      "Developed a recommendation algorithm increasing lead generation by 10%",
-      "Contributed to a facial recognition SDK ranked among the top 100 globally by NIST"
+      "Reduced manual intervention in data collection by 40%",
+      "Increased lead generation by 10% through a recommendation algorithm",
+      "Contributed to a facial recognition SDK ranked among the top 100 globally"
     ]
   },
   "areas_for_development": {
     "skills_gaps": [
-      "Advanced knowledge in specific machine learning frameworks",
-      "Experience with data governance and compliance"
+      "Experience with big data tools such as Spark and Hadoop"
     ],
     "experience_gaps": [
-      "Broader exposure to data warehousing solutions and ETL processes",
-      "Leadership experience in larger teams or projects"
+      "Exposure to more complex data systems and pipelines in a big data context"
     ],
     "recommendations": [
-      "Pursue certifications in advanced machine learning frameworks",
-      "Engage in leadership training or take on mentorship roles within current team"
+      "Engage in online courses or certifications focused on Spark and Hadoop",
+      "Participate in big data projects or hackathons to gain practical experience"
     ]
   },
   "score_breakdown": {
     "skills_match": 90,
     "experience_match": 80
   },
-  "interesting_fact": "Yuttapichai has successfully deployed a facial recognition inference model on edge devices, showcasing his ability to work with cutting-edge technology and contribute to innovative solutions."
+  "interesting_fact": "Yuttapichai contributed to the development of a facial recognition SDK that was benchmarked by the NIST in the USA, showcasing his ability to work on cutting-edge technology."
 }

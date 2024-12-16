@@ -32,39 +32,25 @@ ENV/
 .vscode/
 *.swp
 *.swo
+
+# Project specific
+parsed_job_desc/
+parsed_resumes/
+doc_job_desc/*
+doc_resumes/*
+relevance_score/
+
+# Keep directory structure but ignore contents
+!parsed_job_desc/.gitkeep
+!parsed_resumes/.gitkeep
+!doc_job_desc/.gitkeep
+!doc_resumes/.gitkeep
+!relevance_score/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# OS specific
 .DS_Store
-
-# Project specific - ignore contents but keep directories
-/doc_job_desc/*
-!/doc_job_desc/.gitkeep
-
-/doc_resumes/*
-!/doc_resumes/.gitkeep
-
-/parsed_job_desc/json/*
-!/parsed_job_desc/json/.gitkeep
-/parsed_job_desc/markdown/*
-!/parsed_job_desc/markdown/.gitkeep
-/parsed_job_desc/original/*
-!/parsed_job_desc/original/.gitkeep
-
-/parsed_resumes/json/*
-!/parsed_resumes/json/.gitkeep
-/parsed_resumes/markdown/*
-!/parsed_resumes/markdown/.gitkeep
-/parsed_resumes/original/*
-!/parsed_resumes/original/.gitkeep
-
-/relevance_score/*
-!/relevance_score/.gitkeep
-
-# Document files
-*.pdf
-*.docx
-*.doc
-
-# Poetry
-poetry.lock
-
-# Allow README files
-!README.md
+Thumbs.db

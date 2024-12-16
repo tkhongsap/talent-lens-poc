@@ -113,6 +113,9 @@ try:
 
                 # After successful processing, move the original file
                 original_file_path = join(ORIGINAL_DIR, filename)
+                # Check if file exists and remove it before moving
+                if os.path.exists(original_file_path):
+                    os.remove(original_file_path)
                 os.rename(input_path, original_file_path)
                 print(f"Moved original file to: {original_file_path}")
 
