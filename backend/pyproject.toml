@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "resume-parser"
 version = "0.1.0"
-description = "A resume parsing system using LlamaIndex and OpenAI"
+description = "A resume parsing and job matching system using LlamaParse and OpenAI"
 authors = ["Your Name <your.email@example.com>"]
 
 [tool.poetry.dependencies]
@@ -10,6 +10,7 @@ llama-parse = "*"
 python-dotenv = "*"
 openai = "*"
 pydantic = "*"
+colorama = "*"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"
