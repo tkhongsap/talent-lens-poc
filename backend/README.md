@@ -115,4 +115,4 @@ backend/
 
 ## Note
 
-Make sure to keep your API keys secure and never commit them to version control. The `.env` file is included in `.gitignore` for this reason.
+Make sure to keep your API keys secure and never commit those keys to version control. The `.env` file is included in `.gitignore` for this reason.
