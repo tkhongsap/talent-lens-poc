@@ -34,15 +34,25 @@ ENV/
 *.swo
 .DS_Store
 
-# Project specific
-doc_resumes/
-parsed_resumes/
+# Project specific - ignore contents but keep folders
+doc_resumes/*
+parsed_resumes/json/*
+parsed_resumes/markdown/*
+parsed_resumes/original/*
+
+# Keep .gitkeep files to maintain folder structure
+!doc_resumes/.gitkeep
+!parsed_resumes/json/.gitkeep
+!parsed_resumes/markdown/.gitkeep
+!parsed_resumes/original/.gitkeep
+
+# Document files
 *.pdf
 *.docx
 *.doc
-*.json
-*.md
-!README.md
 
 # Poetry
-poetry.lock 
+poetry.lock
+
+# Allow README files
+!README.md
