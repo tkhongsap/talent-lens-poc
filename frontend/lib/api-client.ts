@@ -6,7 +6,7 @@ export async function uploadResumes(files: File[]) {
     formData.append('files', file);
   });
 
-  const response = await fetch(`${API_BASE_URL}/uploads/resume`, {
+  const response = await fetch('/api/v1/uploads/resume', {
     method: 'POST',
     body: formData,
   });
@@ -22,7 +22,7 @@ export async function uploadJobDescription(file: File) {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await fetch(`${API_BASE_URL}/uploads/job-description`, {
+  const response = await fetch('/api/v1/uploads/job-description', {
     method: 'POST',
     body: formData,
   });

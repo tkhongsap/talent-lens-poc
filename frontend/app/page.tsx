@@ -1,3 +1,5 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
@@ -17,19 +19,37 @@ export default function LandingPage() {
               <p className="text-xl mb-8 text-gray-600">
                 Transform your recruiting process into a precision instrument for discovering exceptional talent.
               </p>
-              <Link href="/dashboard" className="bg-indigo-600 text-white px-6 py-3 rounded-md text-lg font-semibold hover:bg-indigo-700 transition-colors inline-flex items-center">
-                Get Started
+              <Link href="/resume-analysis" className="bg-indigo-600 text-white px-6 py-3 rounded-md text-lg font-semibold hover:bg-indigo-700 transition-colors inline-flex items-center">
+                Try Resume Analysis
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </div>
-            <div className="md:w-1/2">
-              <Image
-                src="/placeholder.svg"
-                alt="TalentLens Dashboard"
-                width={600}
-                height={400}
-                className="rounded-lg shadow-xl"
-              />
+            <div className="md:w-1/2 relative">
+              <div className="relative w-full h-[400px] rounded-lg shadow-2xl overflow-hidden">
+                <Image
+                  src="/images/hero-dashboard.png"
+                  alt="TalentLens Dashboard"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+                {/* Decorative elements */}
+                <div className="absolute -top-4 -right-4 w-24 h-24 bg-indigo-600/10 rounded-full blur-2xl" />
+                <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-indigo-600/10 rounded-full blur-2xl" />
+              </div>
+              {/* Floating elements */}
+              <div className="absolute -top-6 -right-6 bg-white p-4 rounded-lg shadow-lg">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                  <span className="text-sm font-medium">95% Match</span>
+                </div>
+              </div>
+              <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-lg shadow-lg">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-indigo-500 rounded-full" />
+                  <span className="text-sm font-medium">AI-Powered Analysis</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
