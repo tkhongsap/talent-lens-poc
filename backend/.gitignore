@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 *.so
 .Python
+env/
 build/
 develop-eggs/
 dist/
@@ -21,9 +22,6 @@ wheels/
 *.egg
 
 # Virtual Environment
-.env
-.venv
-env/
 venv/
 ENV/
 
@@ -33,24 +31,16 @@ ENV/
 *.swp
 *.swo
 
-# Project specific
-parsed_job_desc/
-parsed_resumes/
-doc_job_desc/*
-doc_resumes/*
-relevance_score/
+# Environment variables
+.env
 
-# Keep directory structure but ignore contents
-!parsed_job_desc/.gitkeep
-!parsed_resumes/.gitkeep
-!doc_job_desc/.gitkeep
-!doc_resumes/.gitkeep
-!relevance_score/.gitkeep
+# Uploads folder
+uploads/
 
 # Logs
 *.log
-logs/
 
-# OS specific
-.DS_Store
-Thumbs.db
+# Coverage
+.coverage
+coverage.xml
+htmlcov/ 
