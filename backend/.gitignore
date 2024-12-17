@@ -43,4 +43,8 @@ uploads/
 # Coverage
 .coverage
 coverage.xml
-htmlcov/ 
+htmlcov/
+
+# Poetry
+poetry.lock
+dist/

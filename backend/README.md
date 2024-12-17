@@ -2,26 +2,16 @@
 
 This is the backend service for the TalentLens platform, providing APIs for resume processing, professional search, and analytics.
 
-## Features
-
-- User Management & Authentication
-- Resume Processing & Analysis
-- Professional Search
-- Analytics & Matching
-- Secure File Storage
-- API Documentation
-
 ## Setup
 
-1. Create a virtual environment:
+1. Install Poetry (Python dependency management):
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: .\venv\Scripts\activate
+curl -sSL https://install.python-poetry.org | python3 -
 ```
 
 2. Install dependencies:
 ```bash
-pip install -r requirements.txt
+poetry install
 ```
 
 3. Create a `.env` file in the root directory with the following variables:
@@ -34,11 +24,29 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 
 4. Run the development server:
 ```bash
-uvicorn app.main:app --reload
+poetry run uvicorn app.main:app --reload
 ```
 
 The API will be available at `http://localhost:8000`
 API documentation will be available at `http://localhost:8000/docs`
+
+## Development
+
+- Format code:
+```bash
+poetry run black .
+poetry run isort .
+```
+
+- Run linting:
+```bash
+poetry run flake8
+```
+
+- Run tests:
+```bash
+poetry run pytest
+```
 
 ## Project Structure
 
@@ -46,9 +54,9 @@ API documentation will be available at `http://localhost:8000/docs`
 backend/
 ├── app/
 │   ├── api/
-│   │   ├── v1/
-│   │   │   ├── endpoints/
-│   │   │   └── routes.py
+│   │   └── v1/
+│   │       ├── endpoints/
+│   │       └── routes.py
 │   ├── core/
 │   │   ├── config.py
 │   │   └── security.py
@@ -62,19 +70,7 @@ backend/
 │   └── main.py
 ├── tests/
 ├── .env
-├── requirements.txt
+├── pyproject.toml
+├── poetry.lock
 └── README.md
 ```
-
-## Testing
-
-Run tests using pytest:
-```bash
-pytest
-```
-
-## API Documentation
-
-Once the server is running, visit:
-- Swagger UI: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc` 
