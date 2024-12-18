@@ -6,7 +6,7 @@ import { FileUpload } from "@/components/file-upload"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
-import { uploadResumes, uploadJobDescription } from "@/lib/api-client"
+import { uploadResumes, uploadJobDescription, uploadJobDescriptionText } from "@/lib/api-client"
 import { Loader2, User, FileText } from 'lucide-react'
 
 interface AnalysisResult {
@@ -22,6 +22,8 @@ interface AnalysisResult {
   };
 }
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+
 export default function ResumeAnalysis() {
   const [resumes, setResumes] = useState<File[]>([])
   const [jobDescription, setJobDescription] = useState<File[]>([])
@@ -32,56 +34,58 @@ export default function ResumeAnalysis() {
 
   const handleAnalyze = async () => {
     if (resumes.length === 0 || (!jobDescription.length && !jobDescriptionText)) {
-      setError("Please provide both resumes and a job description")
-      return
+      setError("Please provide both resumes and a job description");
+      return;
     }
 
-    setIsAnalyzing(true)
-    setError(null)
+    setIsAnalyzing(true);
+    setError(null);
 
     try {
       // Step 1: Upload job description
       let jobDescId;
       if (jobDescription.length > 0) {
-        const jobUploadResult = await uploadJobDescription(jobDescription[0])
-        jobDescId = jobUploadResult.id
+        const jobUploadResult = await uploadJobDescription(jobDescription[0]);
+        jobDescId = jobUploadResult.id;
+      } else if (jobDescriptionText) {
+        const jobUploadResult = await uploadJobDescriptionText(jobDescriptionText);
+        jobDescId = jobUploadResult.id;
       } else {
-        // Handle text-based job description
-        const response = await fetch('/api/job-description/text', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: jobDescriptionText })
-        })
-        const result = await response.json()
-        jobDescId = result.id
+        throw new Error("No job description provided");
       }
 
       // Step 2: Upload and process resumes
-      const resumeUploadPromises = resumes.map(resume => uploadResumes([resume]))
-      const uploadedResumes = await Promise.all(resumeUploadPromises)
+      const resumeUploadPromises = resumes.map(resume => uploadResumes([resume]));
+      const uploadedResumes = await Promise.all(resumeUploadPromises);
 
       // Step 3: Get analysis results
       const analysisPromises = uploadedResumes.map(async (resumeResult) => {
-        const response = await fetch('/api/analyze', {
+        const response = await fetch(`${API_BASE_URL}/analyze`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             resumeId: resumeResult.id,
             jobDescriptionId: jobDescId
           })
-        })
-        return response.json()
-      })
+        });
+        
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({ detail: 'Analysis failed' }));
+          throw new Error(error.detail || 'Analysis failed');
+        }
+        
+        return response.json();
+      });
 
-      const analysisResults = await Promise.all(analysisPromises)
-      setResults(analysisResults)
+      const analysisResults = await Promise.all(analysisPromises);
+      setResults(analysisResults);
       
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred")
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
-      setIsAnalyzing(false)
+      setIsAnalyzing(false);
     }
-  }
+  };
 
   return (
     <Layout>
@@ -139,7 +143,7 @@ export default function ResumeAnalysis() {
                 multiple={false}
                 onFilesSelected={setJobDescription}
                 maxFiles={1}
-                acceptedFileTypes=".pdf,.doc,.docx"
+                acceptedFileTypes=".pdf,.doc,.docx,.txt"
               />
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">

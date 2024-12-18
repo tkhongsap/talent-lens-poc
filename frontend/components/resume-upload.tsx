@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Upload, File, X } from 'lucide-react'
 
-export default function ResumeUpload() {
+export default function ResumeUpload({ onFileSelect }: { onFileSelect: (file: File | null) => void }) {
   const [files, setFiles] = useState<File[]>([])
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {

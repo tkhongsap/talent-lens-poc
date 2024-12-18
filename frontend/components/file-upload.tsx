@@ -8,15 +8,15 @@ import { Card, CardContent } from "@/components/ui/card"
 interface FileUploadProps {
   multiple?: boolean
   onFilesSelected: (files: File[]) => void
-  acceptedFileTypes?: string
   maxFiles?: number
+  acceptedFileTypes?: string
 }
 
 export function FileUpload({
   multiple = false,
   onFilesSelected,
-  acceptedFileTypes = ".pdf,.doc,.docx",
-  maxFiles = 10,
+  maxFiles = 1,
+  acceptedFileTypes = ""
 }: FileUploadProps) {
   const [selectedFiles, setSelectedFiles] = React.useState<File[]>([])
   const fileInputRef = React.useRef<HTMLInputElement>(null)
@@ -58,6 +58,13 @@ export function FileUpload({
     onFilesSelected(newFiles)
   }
 
+  const getFormattedFileTypes = () => {
+    return acceptedFileTypes
+      .split(',')
+      .map(type => type.toUpperCase().replace('.', ''))
+      .join(', ');
+  };
+
   return (
     <div className="w-full">
       <Card
@@ -84,7 +91,7 @@ export function FileUpload({
                 onChange={handleFileChange}
               />
               <p className="text-sm text-gray-500">
-                or drag and drop {multiple ? "files" : "a file"} here
+                or drag and drop files here ({getFormattedFileTypes()})
               </p>
             </div>
           </div>

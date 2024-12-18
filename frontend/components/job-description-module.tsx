@@ -3,9 +3,13 @@
 import { useState } from 'react'
 import { Upload, Save, FileText } from 'lucide-react'
 
-export default function JobDescriptionModule() {
-  const [jobDescription, setJobDescription] = useState('')
-
+export default function JobDescriptionModule({ 
+  value, 
+  onChange 
+}: { 
+  value: string;
+  onChange: (value: string) => void;
+}) {
   return (
     <div className="bg-white p-6 rounded-lg shadow">
       <h2 className="text-xl font-semibold mb-4">Job Description</h2>
@@ -13,8 +17,8 @@ export default function JobDescriptionModule() {
         <textarea
           className="w-full h-48 p-2 border rounded-md"
           placeholder="Enter job description here..."
-          value={jobDescription}
-          onChange={(e) => setJobDescription(e.target.value)}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
         />
         <div className="flex space-x-2">
           <button className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">

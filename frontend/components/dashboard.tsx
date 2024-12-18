@@ -1,47 +1,68 @@
-import Link from 'next/link'
-import { FileText, Users, Clock } from 'lucide-react'
+import { useState } from "react"
+import ResumeUpload from "./resume-upload"
+import JobDescriptionModule from "./job-description-module"
+import { AnalysisResults } from "./analysis-results"
+import { Button } from "./ui/button"
 
-export default function Dashboard() {
+export function Dashboard() {
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [analysisResults, setAnalysisResults] = useState(null)
+  const [resumeFile, setResumeFile] = useState<File | null>(null)
+  const [jobDescription, setJobDescription] = useState("")
+
+  const handleAnalyze = async () => {
+    if (!resumeFile || !jobDescription) {
+      alert("Please upload both resume and job description")
+      return
+    }
+
+    setIsAnalyzing(true)
+    try {
+      const formData = new FormData()
+      formData.append("resume", resumeFile)
+      formData.append("job_description", jobDescription)
+
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        body: formData,
+      })
+
+      const data = await response.json()
+      setAnalysisResults(data)
+    } catch (error) {
+      console.error("Analysis failed:", error)
+      alert("Analysis failed. Please try again.")
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h2 className="text-xl font-semibold mb-4">Quick Stats</h2>
-        <div className="space-y-4">
-          <div className="flex items-center">
-            <FileText className="h-6 w-6 text-indigo-600 mr-2" />
-            <span>152 Resumes Analyzed</span>
-          </div>
-          <div className="flex items-center">
-            <Users className="h-6 w-6 text-indigo-600 mr-2" />
-            <span>24 Pending Reviews</span>
-          </div>
-        </div>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-8">Resume Analysis</h1>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <ResumeUpload onFileSelect={setResumeFile} />
+        <JobDescriptionModule 
+          value={jobDescription}
+          onChange={setJobDescription}
+        />
       </div>
-      <div className="bg-white p-6 rounded-lg shadow md:col-span-2">
-        <h2 className="text-xl font-semibold mb-4">Active Analyses</h2>
-        <div className="space-y-4">
-          {[1, 2, 3].map((item) => (
-            <div key={item} className="flex items-center justify-between border-b pb-2">
-              <span className="font-medium">Senior Developer - Project {item}</span>
-              <Link href={`/analysis/${item}`} className="text-indigo-600 hover:text-indigo-800">
-                View Results
-              </Link>
-            </div>
-          ))}
-        </div>
+
+      <div className="mt-6">
+        <Button
+          onClick={handleAnalyze}
+          disabled={isAnalyzing || !resumeFile || !jobDescription}
+          className="w-full md:w-auto"
+        >
+          {isAnalyzing ? "Analyzing..." : "Analyze Resume"}
+        </Button>
       </div>
-      <div className="bg-white p-6 rounded-lg shadow md:col-span-3">
-        <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
-        <div className="space-y-4">
-          {[1, 2, 3, 4, 5].map((item) => (
-            <div key={item} className="flex items-center text-sm">
-              <Clock className="h-4 w-4 text-gray-400 mr-2" />
-              <span>New resume uploaded for Project {item}</span>
-              <span className="ml-auto text-gray-500">2 hours ago</span>
-            </div>
-          ))}
-        </div>
-      </div>
+
+      <AnalysisResults 
+        results={analysisResults}
+        isLoading={isAnalyzing}
+      />
     </div>
   )
 }

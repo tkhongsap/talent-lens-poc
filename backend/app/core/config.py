@@ -1,32 +1,39 @@
 from pydantic_settings import BaseSettings
-from typing import Optional
+from pydantic import Field
 from functools import lru_cache
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "TalentLens"
-    VERSION: str = "1.0.0"
-    API_V1_STR: str = "/api/v1"
+    # Database settings
+    DATABASE_URL: str = Field(default="mongodb://localhost:27017")
+    MONGODB_MAX_CONNECTIONS: int = Field(default=10)
+    MONGODB_MIN_CONNECTIONS: int = Field(default=1)
     
-    DATABASE_URL: str
-    JWT_SECRET_KEY: str
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    # JWT settings
+    JWT_SECRET_KEY: str = Field(default="your-secret-key-here")
+    ALGORITHM: str = Field(default="HS256")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=30)
     
-    # Optional MongoDB settings
-    MONGODB_MAX_CONNECTIONS: int = 10
-    MONGODB_MIN_CONNECTIONS: int = 1
+    # API Keys
+    LLAMA_CLOUD_API_KEY: str = Field(default=...)
+    OPENAI_API_KEY: str = Field(default=...)
+    
+    # Model settings
+    OPENAI_MODEL: str = Field(default="gpt-4o-mini")
     
     # File upload settings
-    MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10MB
-    ALLOWED_EXTENSIONS: set = {"pdf", "doc", "docx"}
-    UPLOAD_FOLDER: str = "uploads"
-    
+    UPLOAD_FOLDER: str = Field(default="uploads")
+    ALLOWED_EXTENSIONS: set = Field(default={"pdf", "doc", "docx", "txt"})
+
     class Config:
         env_file = ".env"
         case_sensitive = True
 
-
 @lru_cache()
 def get_settings() -> Settings:
-    return Settings() 
+    return Settings()
+
+settings = get_settings()

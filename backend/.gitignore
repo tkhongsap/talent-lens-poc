@@ -33,6 +33,8 @@ ENV/
 
 # Environment variables
 .env
+.env.local
+.env.*.local
 
 # Uploads folder
 uploads/

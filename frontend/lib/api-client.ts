@@ -6,13 +6,14 @@ export async function uploadResumes(files: File[]) {
     formData.append('files', file);
   });
 
-  const response = await fetch('/api/v1/uploads/resume', {
+  const response = await fetch(`${API_BASE_URL}/uploads/resume`, {
     method: 'POST',
     body: formData,
   });
 
   if (!response.ok) {
-    throw new Error('Failed to upload resumes');
+    const error = await response.json().catch(() => ({ detail: 'Failed to upload resumes' }));
+    throw new Error(error.detail || 'Failed to upload resumes');
   }
 
   return response.json();
@@ -22,13 +23,31 @@ export async function uploadJobDescription(file: File) {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await fetch('/api/v1/uploads/job-description', {
+  const response = await fetch(`${API_BASE_URL}/uploads/job-description`, {
     method: 'POST',
     body: formData,
   });
 
   if (!response.ok) {
-    throw new Error('Failed to upload job description');
+    const error = await response.json().catch(() => ({ detail: 'Failed to upload job description' }));
+    throw new Error(error.detail || 'Failed to upload job description');
+  }
+
+  return response.json();
+}
+
+export async function uploadJobDescriptionText(text: string) {
+  const response = await fetch(`${API_BASE_URL}/uploads/job-description/text`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ text }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ detail: 'Failed to upload job description text' }));
+    throw new Error(error.detail || 'Failed to upload job description text');
   }
 
   return response.json();

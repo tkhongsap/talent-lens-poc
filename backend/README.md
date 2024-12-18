@@ -20,6 +20,10 @@ DATABASE_URL=mongodb://localhost:27017
 JWT_SECRET_KEY=your-secret-key
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
+LLAMA_CLOUD_API_KEY=your-llama-cloud-api-key
+OPENAI_API_KEY=your-openai-api-key
+OPENAI_MODEL=gpt-4-1106-preview
+UPLOAD_FOLDER=uploads
 ```
 
 4. Run the development server:
