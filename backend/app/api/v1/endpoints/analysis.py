@@ -11,6 +11,7 @@ import nest_asyncio
 import sys
 from app.services.parser_service import ParserService
 from app.services.storage_service import StorageService
+from app.services.analysis_service import AnalysisService
 
 # Add debug logging
 logger = logging.getLogger(__name__)
@@ -47,7 +48,25 @@ class AnalysisResponse(BaseModel):
 @router.post("/", response_model=AnalysisResponse)
 async def analyze_resume(request: AnalysisRequest):
     logger.info(f"Analysis request received for resume_id: {request.resume_id} and job_description_id: {request.job_description_id}")
+    
+    # Validate file IDs exist before proceeding
     try:
+        # Check if files exist in storage - use _files instead of files
+        available_files = list(StorageService._files.keys())
+        logger.info(f"Available files in storage: {available_files}")
+        
+        if request.resume_id not in available_files:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Resume file not found. Available files: {available_files}"
+            )
+            
+        if request.job_description_id not in available_files:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Job description file not found. Available files: {available_files}"
+            )
+            
         parser_service = ParserService()
         
         # Get files from storage
@@ -68,47 +87,46 @@ async def analyze_resume(request: AnalysisRequest):
         resume_result = await parser_service.parse_document(resume_data, is_resume=True)
         job_desc_result = await parser_service.parse_document(job_desc_data, is_resume=False)
         
-        # Use OpenAI to analyze the parsed content
-        try:
-            analysis_response = await parser_service.client.chat.completions.create(
-                model=settings.OPENAI_MODEL,
-                messages=[
-                    {"role": "system", "content": "You are an expert resume analyzer."},
-                    {"role": "user", "content": f"""
-                    Compare this resume with the job description and provide analysis:
-                    
-                    RESUME:
-                    {resume_result['markdown_content']}
-                    
-                    JOB DESCRIPTION:
-                    {job_desc_result['markdown_content']}
-                    
-                    Provide a detailed analysis including skills match, experience match, 
-                    education match, overall fit, and specific recommendations.
-                    """}
-                ],
-                temperature=0.3,
-                response_format={"type": "json_object"}
-            )
-            
-            analysis = json.loads(analysis_response.choices[0].message.content)
-            logger.info("Analysis completed successfully")
-            
-        except Exception as e:
-            logger.error(f"OpenAI analysis failed: {str(e)}")
-            # Fallback to mock data if OpenAI fails
-            analysis = {
-                "skillsMatch": 80.0,
-                "experienceMatch": 85.0,
-                "educationMatch": 90.0,
-                "overallFit": 85.5,
-                "recommendations": [
-                    "Consider highlighting your project management experience",
-                    "Add more details about your technical skills",
-                    "Include certifications if available"
-                ]
-            }
+        analysis_service = AnalysisService()
+        
+        # Calculate matches
+        skills_match, missing_skills = analysis_service.calculate_skills_match(
+            resume_result['structured_data']['skills'],
+            job_desc_result['structured_data']['qualifications']
+        )
+        
+        experience_match, experience_gaps = analysis_service.calculate_experience_match(
+            resume_result['structured_data'],
+            job_desc_result['structured_data']
+        )
+        
+        education_match, education_recommendations = analysis_service.calculate_education_match(
+            resume_result['structured_data'],
+            job_desc_result['structured_data']
+        )
+        
+        overall_match = analysis_service.calculate_overall_match(
+            skills_match,
+            experience_match,
+            education_match
+        )
+        
+        # Compile recommendations
+        recommendations = []
+        if missing_skills:
+            recommendations.append(f"Consider developing skills in: {', '.join(missing_skills)}")
+        recommendations.extend(education_recommendations)
+        if experience_gaps:
+            recommendations.extend(experience_gaps)
 
+        analysis = {
+            "skillsMatch": skills_match,
+            "experienceMatch": experience_match,
+            "educationMatch": education_match,
+            "overallFit": overall_match,
+            "recommendations": recommendations
+        }
+        
         # Optionally, clean up files from memory if desired
         await storage_service.cleanup_file(request.resume_id)
         await storage_service.cleanup_file(request.job_description_id)

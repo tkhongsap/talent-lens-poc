@@ -5,6 +5,7 @@ import logging
 import traceback
 from app.services.storage_service import StorageService
 from io import BytesIO
+import uuid
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -17,7 +18,7 @@ class JobDescriptionText(BaseModel):
 async def upload_job_description(file: UploadFile = File(...)):
     """Upload a job description file"""
     try:
-        # Store file
+        # Store file using store_file method
         file_id = await storage_service.store_file(file)
         logger.info(f"File stored with ID: {file_id}")
         return {"file_id": file_id}
@@ -29,17 +30,19 @@ async def upload_job_description(file: UploadFile = File(...)):
 async def upload_resume(file: UploadFile = File(...)):
     """Upload a single resume file"""
     try:
-        logger.info(f"Received resume upload request: {file.filename}, {file.content_type}")
+        # Log the file upload
+        logger.info(f"Uploading resume: {file.filename}")
+        
+        # Use store_file instead of save_file
         file_id = await storage_service.store_file(file)
-        logger.info(f"Stored resume file: {file_id}")
+        
+        # Log successful upload
+        logger.info(f"Successfully uploaded resume with ID: {file_id}")
+        
         return {"file_id": file_id}
     except Exception as e:
-        logger.error(f"Error in upload_resume: {str(e)}")
-        logger.error(f"Full error: {traceback.format_exc()}")
-        raise HTTPException(
-            status_code=422, 
-            detail={"error": str(e), "type": "resume_upload_error"}
-        )
+        logger.error(f"Error uploading resume: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/job-description-text")
 async def upload_job_description_text(job_desc: JobDescriptionText):
@@ -52,9 +55,9 @@ async def upload_job_description_text(job_desc: JobDescriptionText):
             filename="job_description.txt"
         )
         
-        # Store file and get ID
+        # Store file using store_file method
         file_id = await storage_service.store_file(file)
-        logger.info(f"Stored job description text as file: {file_id}")
+        logger.info(f"Stored job description text with ID: {file_id}")
         return {"file_id": file_id}
     except Exception as e:
         logger.error(f"Error in upload_job_description_text: {str(e)}")

@@ -53,29 +53,49 @@ export default function ResumeAnalysis() {
     try {
       // Step 1: Upload job description
       let jobDescId;
-      if (jobDescription.length > 0) {
-        const jobUploadResult = await uploadJobDescription(jobDescription[0]);
-        jobDescId = jobUploadResult.file_id;
-      } else if (jobDescriptionText) {
-        const jobUploadResult = await uploadJobDescriptionText(jobDescriptionText);
-        jobDescId = jobUploadResult.file_id;
-      } else {
-        throw new Error("No job description provided");
+      try {
+        if (jobDescription.length > 0) {
+          const jobUploadResult = await uploadJobDescription(jobDescription[0]);
+          jobDescId = jobUploadResult.file_id;
+          console.log("Job description uploaded successfully:", jobDescId);
+        } else if (jobDescriptionText) {
+          const jobUploadResult = await uploadJobDescriptionText(jobDescriptionText);
+          jobDescId = jobUploadResult.file_id;
+          console.log("Job description text uploaded successfully:", jobDescId);
+        }
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          throw new Error(`Failed to upload job description: ${err.message}`);
+        } else {
+          throw new Error('Failed to upload job description: An unknown error occurred');
+        }
       }
 
       // Step 2: Upload resumes and get analysis results
       const results = [];
       for (const resume of resumes) {
-        // Upload resume
-        const resumeUploadResult = await uploadResumes([resume]);
-        const resumeId = resumeUploadResult.file_id;
-        
-        // Get analysis for this resume
-        const analysisResult = await analyzeResume(resumeId, jobDescId);
-        results.push({
-          ...analysisResult,
-          fileName: resume.name
-        });
+        try {
+          // Upload resume
+          console.log("Uploading resume:", resume.name);
+          const resumeUploadResult = await uploadResumes([resume]);
+          const resumeId = resumeUploadResult.file_id;
+          console.log("Resume uploaded successfully:", resumeId);
+          
+          // Get analysis for this resume
+          console.log("Requesting analysis for resume:", resumeId);
+          const analysisResult = await analyzeResume(resumeId, jobDescId);
+          results.push({
+            ...analysisResult,
+            fileName: resume.name
+          });
+        } catch (err: unknown) {
+          console.error(`Failed to process resume ${resume.name}:`, err);
+          if (err instanceof Error) {
+            throw err;
+          } else {
+            throw new Error(`Failed to process resume ${resume.name}: An unknown error occurred`);
+          }
+        }
       }
 
       setResults(results);
