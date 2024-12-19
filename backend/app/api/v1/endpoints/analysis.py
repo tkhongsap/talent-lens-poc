@@ -87,49 +87,12 @@ async def analyze_resume(request: AnalysisRequest):
         resume_result = await parser_service.parse_document(resume_data, is_resume=True)
         job_desc_result = await parser_service.parse_document(job_desc_data, is_resume=False)
         
+        # Use LLM for analysis
         analysis_service = AnalysisService()
-        
-        # Calculate matches
-        skills_match, missing_skills = analysis_service.calculate_skills_match(
-            resume_result['structured_data']['skills'],
-            job_desc_result['structured_data']['qualifications']
-        )
-        
-        experience_match, experience_gaps = analysis_service.calculate_experience_match(
+        analysis_result = await analysis_service.analyze_resume_fit(
             resume_result['structured_data'],
             job_desc_result['structured_data']
         )
-        
-        education_match, education_recommendations = analysis_service.calculate_education_match(
-            resume_result['structured_data'],
-            job_desc_result['structured_data']
-        )
-        
-        overall_match = analysis_service.calculate_overall_match(
-            skills_match,
-            experience_match,
-            education_match
-        )
-        
-        # Compile recommendations
-        recommendations = []
-        if missing_skills:
-            recommendations.append(f"Consider developing skills in: {', '.join(missing_skills)}")
-        recommendations.extend(education_recommendations)
-        if experience_gaps:
-            recommendations.extend(experience_gaps)
-
-        analysis = {
-            "skillsMatch": skills_match,
-            "experienceMatch": experience_match,
-            "educationMatch": education_match,
-            "overallFit": overall_match,
-            "recommendations": recommendations
-        }
-        
-        # Optionally, clean up files from memory if desired
-        await storage_service.cleanup_file(request.resume_id)
-        await storage_service.cleanup_file(request.job_description_id)
 
         return {
             "resumeId": request.resume_id,
@@ -144,7 +107,7 @@ async def analyze_resume(request: AnalysisRequest):
                 "markdown_content": job_desc_result['markdown_content'],
                 "structured_data": job_desc_result['structured_data']
             },
-            "analysis_results": analysis
+            "analysis_results": analysis_result  # Return the full OpenAI analysis
         }
 
     except Exception as e:

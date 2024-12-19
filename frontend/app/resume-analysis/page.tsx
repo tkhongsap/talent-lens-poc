@@ -21,6 +21,28 @@ interface AnalysisResults {
   educationMatch: number;
   overallFit: number;
   recommendations: string[];
+  detailed_analysis?: {
+    executive_summary?: string;
+    fit_analysis?: {
+      overall_assessment?: string;
+      fit_score?: number;
+    };
+    key_strengths?: {
+      skills?: string[];
+      experience?: string[];
+      notable_achievements?: string[];
+    };
+    areas_for_development?: {
+      skills_gaps?: string[];
+      experience_gaps?: string[];
+      recommendations?: string[];
+    };
+    score_breakdown?: {
+      skills_match?: string | number;
+      experience_match?: string | number;
+    };
+    interesting_fact?: string;
+  };
 }
 
 interface AnalysisResult {
@@ -261,28 +283,37 @@ export default function ResumeAnalysis() {
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span>Overall Match:</span>
-                        <span className="font-bold">{result.analysis_results.overallFit}%</span>
+                        <span className="font-bold">{result.analysis_results?.overallFit ?? 0}%</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Skills Match:</span>
-                        <span>{result.analysis_results.skillsMatch}%</span>
+                        <span>{result.analysis_results?.skillsMatch ?? 0}%</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Experience Match:</span>
-                        <span>{result.analysis_results.experienceMatch}%</span>
+                        <span>{result.analysis_results?.experienceMatch ?? 0}%</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span>Education Match:</span>
-                        <span>{result.analysis_results.educationMatch}%</span>
-                      </div>
-                      <div className="mt-4">
-                        <h4 className="font-medium mb-2">Recommendations:</h4>
-                        <ul className="list-disc list-inside space-y-1">
-                          {result.analysis_results.recommendations.map((rec: string, idx: number) => (
-                            <li key={idx} className="text-sm text-gray-600">{rec}</li>
-                          ))}
-                        </ul>
-                      </div>
+                      {/* Recommendations Section */}
+                      {result.analysis_results?.recommendations && 
+                       result.analysis_results.recommendations.length > 0 && (
+                        <div className="mt-4">
+                          <h4 className="font-medium mb-2">Recommendations:</h4>
+                          <ul className="list-disc list-inside space-y-1">
+                            {result.analysis_results.recommendations.map((rec: string, idx: number) => (
+                              <li key={idx} className="text-sm text-gray-600">{rec}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {/* Detailed Analysis Section */}
+                      {result.analysis_results?.detailed_analysis && (
+                        <div className="mt-4">
+                          <h4 className="font-medium mb-2">Detailed Analysis:</h4>
+                          <pre className="bg-gray-50 p-4 rounded-md overflow-auto text-sm">
+                            {JSON.stringify(result.analysis_results.detailed_analysis, null, 2)}
+                          </pre>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
