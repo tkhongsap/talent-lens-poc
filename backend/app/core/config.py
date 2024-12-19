@@ -27,6 +27,16 @@ class Settings(BaseSettings):
     # File upload settings
     UPLOAD_FOLDER: str = Field(default="uploads")
     ALLOWED_EXTENSIONS: set = Field(default={"pdf", "doc", "docx", "txt"})
+    
+    # Cloud Storage Settings
+    USE_CLOUD_STORAGE: bool = Field(default=False)  # Set to True in production
+    STORAGE_PROVIDER: str = Field(default="azure")  # or "aws", "gcp"
+    STORAGE_CONNECTION_STRING: str = Field(default="")
+    STORAGE_CONTAINER: str = Field(default="talent-lens-uploads")
+    STORAGE_TEMP_URL_EXPIRY: int = Field(default=10)  # minutes
+    
+    # Temporary local storage (for development)
+    TEMP_UPLOAD_DIR: str = Field(default="temp_uploads")
 
     class Config:
         env_file = ".env"

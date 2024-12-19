@@ -1,100 +1,77 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Body
-from typing import List, Dict
-from app.core.config import get_settings
-from app.services.resume_processor import resume_processor
-import os
-import uuid
-import shutil
+from fastapi import APIRouter, UploadFile, File, HTTPException
+from typing import List
+from pydantic import BaseModel
+import logging
+import traceback
+from app.services.storage_service import StorageService
+from io import BytesIO
 
 router = APIRouter()
-settings = get_settings()
+logger = logging.getLogger(__name__)
+storage_service = StorageService()
 
-# Ensure upload directory exists
-os.makedirs(settings.UPLOAD_FOLDER, exist_ok=True)
-
-ALLOWED_JOB_DESC_EXTENSIONS = {'.pdf', '.doc', '.docx', '.txt'}
-
-@router.post("/resume")
-async def upload_resumes(files: List[UploadFile] = File(...)):
-    results = []
-    for file in files:
-        # Validate file extension
-        ext = os.path.splitext(file.filename)[1].lower()
-        if ext[1:] not in settings.ALLOWED_EXTENSIONS:
-            raise HTTPException(
-                status_code=400,
-                detail=f"File type {ext} not allowed. Allowed types: {settings.ALLOWED_EXTENSIONS}"
-            )
-        
-        # Generate unique filename
-        unique_filename = f"{uuid.uuid4()}{ext}"
-        file_path = os.path.join(settings.UPLOAD_FOLDER, unique_filename)
-        
-        # Save file
-        try:
-            contents = await file.read()
-            with open(file_path, "wb") as f:
-                f.write(contents)
-            
-            results.append({
-                "filename": file.filename,
-                "saved_as": unique_filename,
-                "file_path": file_path,
-                "size": len(contents)
-            })
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error saving file: {str(e)}")
-    
-    return {"uploaded_files": results}
+class JobDescriptionText(BaseModel):
+    text: str
 
 @router.post("/job-description")
 async def upload_job_description(file: UploadFile = File(...)):
+    """Upload a job description file"""
     try:
-        # Get file extension
-        file_ext = os.path.splitext(file.filename)[1].lower()
-        
-        # Validate file extension
-        if file_ext not in ALLOWED_JOB_DESC_EXTENSIONS:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid file type. Allowed types are: {', '.join(ALLOWED_JOB_DESC_EXTENSIONS)}"
-            )
-        
-        # Create unique filename
-        unique_filename = f"job_desc_{uuid.uuid4()}{file_ext}"
-        file_path = os.path.join(settings.UPLOAD_FOLDER, unique_filename)
-        
-        # Save file
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-            
-        return {
-            "id": unique_filename,
-            "filename": file.filename,
-            "status": "success"
-        }
+        # Store file
+        file_id = await storage_service.store_file(file)
+        logger.info(f"File stored with ID: {file_id}")
+        return {"file_id": file_id}
     except Exception as e:
+        logger.error(f"Upload error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/job-description/text")
-async def create_job_description_from_text(text_data: Dict[str, str] = Body(...)):
+@router.post("/resume")
+async def upload_resume(file: UploadFile = File(...)):
+    """Upload a single resume file"""
     try:
-        job_text = text_data.get("text")
-        if not job_text:
-            raise HTTPException(status_code=400, detail="Job description text is required")
+        logger.info(f"Received resume upload request: {file.filename}, {file.content_type}")
+        file_id = await storage_service.store_file(file)
+        logger.info(f"Stored resume file: {file_id}")
+        return {"file_id": file_id}
+    except Exception as e:
+        logger.error(f"Error in upload_resume: {str(e)}")
+        logger.error(f"Full error: {traceback.format_exc()}")
+        raise HTTPException(
+            status_code=422, 
+            detail={"error": str(e), "type": "resume_upload_error"}
+        )
+
+@router.post("/job-description-text")
+async def upload_job_description_text(job_desc: JobDescriptionText):
+    """Upload job description as text"""
+    try:
+        # Create a text file in memory
+        file_content = BytesIO(job_desc.text.encode())
+        file = UploadFile(
+            file=file_content,
+            filename="job_description.txt"
+        )
         
-        # Create unique filename for the text content
-        unique_filename = f"job_desc_{uuid.uuid4()}.txt"
-        file_path = os.path.join(settings.UPLOAD_FOLDER, unique_filename)
-        
-        # Save the text content to a file
-        with open(file_path, "w", encoding="utf-8") as f:
-            f.write(job_text)
-            
+        # Store file and get ID
+        file_id = await storage_service.store_file(file)
+        logger.info(f"Stored job description text as file: {file_id}")
+        return {"file_id": file_id}
+    except Exception as e:
+        logger.error(f"Error in upload_job_description_text: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e)) 
+
+@router.get("/debug/storage/{file_id}")
+async def debug_storage(file_id: str):
+    """Debug endpoint to check storage content"""
+    try:
+        stored_data = storage_service._files.get(file_id)
         return {
-            "id": unique_filename,
-            "filename": "job_description.txt",
-            "status": "success"
+            "exists": file_id in storage_service._files,
+            "type": str(type(stored_data)),
+            "is_tuple": isinstance(stored_data, tuple),
+            "length": len(stored_data) if isinstance(stored_data, tuple) else None,
+            "filename": stored_data[0] if isinstance(stored_data, tuple) else None,
+            "content_length": len(stored_data[1]) if isinstance(stored_data, tuple) else None
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) 
+        return {"error": str(e)} 

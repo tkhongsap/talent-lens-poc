@@ -21,6 +21,9 @@ spacy = "^3.7.2"
 llama-parse = "*"
 openai = "*"
 colorama = "*"
+nest-asyncio = "^1.5.8"
+azure-storage-blob = "^12.19.0"
+apscheduler = "^3.10.4"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.3"

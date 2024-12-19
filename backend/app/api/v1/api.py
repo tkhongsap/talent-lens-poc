@@ -6,7 +6,7 @@ api_router = APIRouter()
 # Analysis endpoints
 api_router.include_router(
     analysis.router, 
-    prefix="/analyze", 
+    prefix="/analysis", 
     tags=["Analysis"]
 )
 

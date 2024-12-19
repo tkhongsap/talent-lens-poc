@@ -1,8 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 from app.api.v1.api import api_router
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import logging
+import os
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -15,10 +17,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Add CORS middleware
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:3000"],  # Add your frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -224,12 +226,25 @@ async def health_check():
 # Include API router
 app.include_router(api_router, prefix="/api/v1")
 
+scheduler = AsyncIOScheduler()
+
 @app.on_event("startup")
 async def startup_event():
     logger.info("Application startup")
-    # Add any startup tasks here
+    # Start the scheduler
+    scheduler.start()
 
 @app.on_event("shutdown")
 async def shutdown_event():
     logger.info("Application shutdown")
-    # Add any cleanup tasks here
+    # Check if scheduler is running before shutting down
+    if scheduler.running:
+        scheduler.shutdown()
+
+@app.get('/favicon.ico', include_in_schema=False)
+async def favicon():
+    # Option 1: Return an empty response
+    return FileResponse(status_code=204)  # No Content
+
+    # Option 2: Return an actual favicon if you have one
+    # return FileResponse('path/to/favicon.ico')
