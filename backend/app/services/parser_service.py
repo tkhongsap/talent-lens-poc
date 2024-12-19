@@ -3,7 +3,8 @@ from openai import AsyncOpenAI
 from ..core.config import get_settings
 from ..utils.prompting_instructions import (
     JOB_DESCRIPTION_PARSER_SYSTEM_PROMPT,
-    RESUME_PARSER_SYSTEM_PROMPT
+    RESUME_PARSER_SYSTEM_PROMPT,
+    RESUME_SUMMARIZER_SYSTEM_PROMPT
 )
 import json
 import io
@@ -66,26 +67,27 @@ class ParserService:
                 
                 # Process with OpenAI
                 logger.info("Starting OpenAI processing...")
-                system_prompt = RESUME_PARSER_SYSTEM_PROMPT if is_resume else JOB_DESCRIPTION_PARSER_SYSTEM_PROMPT
+                system_prompt = RESUME_SUMMARIZER_SYSTEM_PROMPT if is_resume else JOB_DESCRIPTION_PARSER_SYSTEM_PROMPT
                 
                 completion = await self.client.chat.completions.create(
                     model=self.model,
-                    response_format={"type": "json_object"},
                     messages=[
                         {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": f"Parse this content into structured JSON:\n\n{markdown_content}"}
+                        {"role": "user", "content": f"Parse this content:\n\n{markdown_content}"}
                     ],
                     temperature=0.3,
                     seed=42
                 )
                 
-                structured_data = json.loads(completion.choices[0].message.content)
+                raw_response = completion.choices[0].message.content
+                
                 logger.info("Successfully processed content with OpenAI")
                 
                 return {
                     "filename": filename,
+                    "original_text": raw_response,
                     "markdown_content": markdown_content,
-                    "structured_data": structured_data
+                    "structured_data": {}
                 }
                 
             except Exception as e:

@@ -19,10 +19,10 @@ class AnalysisService:
         Returns: Full analysis result from OpenAI
         """
         try:
-            # Convert markdown content to structured format if needed
+            # Adapt the input format for the new summary structure
             input_content = {
                 "job_description": job_data,
-                "resume": resume_data
+                "resume_summary": resume_data  # Now contains the summarized format
             }
 
             logger.info("Sending analysis request to OpenAI")

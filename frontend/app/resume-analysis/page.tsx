@@ -5,14 +5,13 @@ import Layout from '../components/layout'
 import { FileUpload } from "@/components/file-upload"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Textarea } from "@/components/ui/textarea"
-import { uploadResumes, uploadJobDescription, uploadJobDescriptionText, analyzeResume } from "@/lib/api-client"
+import { uploadResumes, uploadJobDescription, analyzeResume } from "@/lib/api-client"
 import { Loader2, User, FileText } from 'lucide-react'
 
 interface ParsedContent {
   original_text: string;
   markdown_content: string;
-  structured_data: Record<string, any>;
+  structured_data?: Record<string, any>;
 }
 
 interface AnalysisResults {
@@ -56,15 +55,14 @@ interface AnalysisResult {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
 export default function ResumeAnalysis() {
-  const [resumes, setResumes] = useState<File[]>([])
   const [jobDescription, setJobDescription] = useState<File[]>([])
-  const [jobDescriptionText, setJobDescriptionText] = useState('')
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [resumes, setResumes] = useState<File[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [results, setResults] = useState<AnalysisResult[]>([])
 
   const handleAnalyze = async () => {
-    if (resumes.length === 0 || (!jobDescription.length && !jobDescriptionText)) {
+    if (resumes.length === 0 || !jobDescription.length) {
       setError("Please provide both resumes and a job description");
       return;
     }
@@ -76,15 +74,9 @@ export default function ResumeAnalysis() {
       // Step 1: Upload job description
       let jobDescId;
       try {
-        if (jobDescription.length > 0) {
-          const jobUploadResult = await uploadJobDescription(jobDescription[0]);
-          jobDescId = jobUploadResult.file_id;
-          console.log("Job description uploaded successfully:", jobDescId);
-        } else if (jobDescriptionText) {
-          const jobUploadResult = await uploadJobDescriptionText(jobDescriptionText);
-          jobDescId = jobUploadResult.file_id;
-          console.log("Job description text uploaded successfully:", jobDescId);
-        }
+        const jobUploadResult = await uploadJobDescription(jobDescription[0]);
+        jobDescId = jobUploadResult.file_id;
+        console.log("Job description uploaded successfully:", jobDescId);
       } catch (err: unknown) {
         if (err instanceof Error) {
           throw new Error(`Failed to upload job description: ${err.message}`);
@@ -129,101 +121,80 @@ export default function ResumeAnalysis() {
     }
 
     console.log('Uploading job description:', jobDescription);
-    console.log('Job description text:', jobDescriptionText);
     console.log('Uploading resumes:', resumes);
   };
 
   return (
     <Layout>
-      <header className="bg-white shadow-sm py-4 mb-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-800">Resume Analysis</h1>
-            <p className="text-gray-600">Compare resumes with job descriptions</p>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Resume Upload Section */}
-          <Card className="bg-white shadow-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Resume
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FileUpload
-                multiple={true}
-                onFilesSelected={setResumes}
-                maxFiles={10}
-                acceptedFileTypes=".pdf,.doc,.docx,.txt"
-              />
-              {resumes.length > 0 && (
-                <div className="mt-4">
-                  <h4 className="font-medium mb-2">Selected Resumes:</h4>
-                  <ul className="space-y-1">
-                    {resumes.map((file, index) => (
-                      <li key={index} className="text-sm text-gray-600">
-                        {file.name}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Job Description Section */}
-          <Card className="bg-white shadow-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Job Description
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FileUpload
-                multiple={false}
-                onFilesSelected={setJobDescription}
-                maxFiles={1}
-                acceptedFileTypes=".pdf,.doc,.docx,.txt"
-              />
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">Or paste job description</span>
-                </div>
-              </div>
-              <Textarea
-                placeholder="Paste job description here..."
-                value={jobDescriptionText}
-                onChange={(e) => setJobDescriptionText(e.target.value)}
-                className="min-h-[200px]"
-              />
-            </CardContent>
-          </Card>
-        </div>
+      <div className="container mx-auto py-8">
+        <h1 className="text-2xl font-bold mb-8">Resume Analysis</h1>
+        <p className="text-gray-600 mb-8">Compare resumes with job descriptions</p>
 
         {error && (
-          <div className="mt-6 text-red-500 text-center bg-red-50 p-4 rounded-md">
+          <div className="bg-red-50 text-red-500 p-4 rounded-md mb-4">
             {error}
           </div>
         )}
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Resume Upload Section */}
+          <div>
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <User className="w-5 h-5" /> Resume
+            </h2>
+            <FileUpload
+              files={resumes}
+              setFiles={setResumes}
+              onRemove={(index: number) => {
+                const newFiles = [...resumes];
+                newFiles.splice(index, 1);
+                setResumes(newFiles);
+              }}
+              accept={{
+                'application/pdf': ['.pdf'],
+                'application/msword': ['.doc'],
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+                'text/plain': ['.txt']
+              }}
+            />
+          </div>
+
+          {/* Job Description Upload Section */}
+          <div>
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <FileText className="w-5 h-5" /> Job Description
+            </h2>
+            <FileUpload
+              files={jobDescription}
+              setFiles={setJobDescription}
+              onRemove={(index: number) => {
+                const newFiles = [...jobDescription];
+                newFiles.splice(index, 1);
+                setJobDescription(newFiles);
+              }}
+              accept={{
+                'application/pdf': ['.pdf'],
+                'application/msword': ['.doc'],
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+                'text/plain': ['.txt']
+              }}
+            />
+          </div>
+        </div>
+
         <div className="mt-8 flex justify-center">
           <Button
-            size="lg"
             onClick={handleAnalyze}
-            disabled={isAnalyzing || (resumes.length === 0 || (!jobDescription.length && !jobDescriptionText))}
-            className="px-8 bg-indigo-600 hover:bg-indigo-700"
+            disabled={isAnalyzing || resumes.length === 0 || jobDescription.length === 0}
           >
-            {isAnalyzing && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
-            Analyze Resume
+            {isAnalyzing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Analyzing...
+              </>
+            ) : (
+              'Analyze Resume'
+            )}
           </Button>
         </div>
 
@@ -238,28 +209,11 @@ export default function ResumeAnalysis() {
                     <CardTitle>{result.fileName}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {/* Parsed Resume Content */}
                     <div className="mb-4">
-                      <h3 className="font-semibold mb-2">Parsed Resume:</h3>
-                      {result.parsed_resume.original_text ? (
-                        <pre className="bg-gray-50 p-4 rounded-md overflow-auto text-sm">
-                          {result.parsed_resume.original_text}
-                        </pre>
-                      ) : (
-                        <p className="text-gray-500">No parsed content available.</p>
-                      )}
-                    </div>
-
-                    {/* Parsed Job Description Content */}
-                    <div className="mb-4">
-                      <h3 className="font-semibold mb-2">Parsed Job Description:</h3>
-                      {result.parsed_job_description.original_text ? (
-                        <pre className="bg-gray-50 p-4 rounded-md overflow-auto text-sm">
-                          {result.parsed_job_description.original_text}
-                        </pre>
-                      ) : (
-                        <p className="text-gray-500">No parsed content available.</p>
-                      )}
+                      <h3 className="text-lg font-semibold mb-2">Resume Summary</h3>
+                      <pre className="bg-gray-50 p-4 rounded-md overflow-auto text-sm whitespace-pre-wrap">
+                        {result.parsed_resume.original_text}
+                      </pre>
                     </div>
                   </CardContent>
                 </Card>

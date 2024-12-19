@@ -6,19 +6,25 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 
 interface FileUploadProps {
-  multiple?: boolean
-  onFilesSelected: (files: File[]) => void
-  maxFiles?: number
-  acceptedFileTypes?: string
+  files?: File[];
+  setFiles: (files: File[]) => void;
+  onFilesSelected?: (files: File[]) => void;
+  onRemove?: (index: number) => void;
+  accept?: Record<string, string[]>;
+  multiple?: boolean;
+  maxFiles?: number;
 }
 
 export function FileUpload({
-  multiple = false,
+  files = [],
+  setFiles,
   onFilesSelected,
-  maxFiles = 1,
-  acceptedFileTypes = ""
+  onRemove,
+  accept,
+  multiple = false,
+  maxFiles = 10
 }: FileUploadProps) {
-  const [selectedFiles, setSelectedFiles] = React.useState<File[]>([])
+  const [selectedFiles, setSelectedFiles] = React.useState<File[]>(files)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,10 +35,10 @@ export function FileUpload({
         return
       }
       setSelectedFiles(prev => [...prev, ...files])
-      onFilesSelected([...selectedFiles, ...files])
+      setFiles([...selectedFiles, ...files])
     } else {
       setSelectedFiles(files)
-      onFilesSelected(files)
+      setFiles(files)
     }
   }
 
@@ -45,25 +51,27 @@ export function FileUpload({
         return
       }
       setSelectedFiles(prev => [...prev, ...files])
-      onFilesSelected([...selectedFiles, ...files])
+      setFiles([...selectedFiles, ...files])
     } else {
       setSelectedFiles(files)
-      onFilesSelected(files)
+      setFiles(files)
     }
   }
 
   const removeFile = (index: number) => {
     const newFiles = selectedFiles.filter((_, i) => i !== index)
     setSelectedFiles(newFiles)
-    onFilesSelected(newFiles)
+    setFiles(newFiles)
+    onRemove?.(index)
   }
 
   const getFormattedFileTypes = () => {
-    return acceptedFileTypes
-      .split(',')
-      .map(type => type.toUpperCase().replace('.', ''))
-      .join(', ');
-  };
+    if (!accept) return "PDF, DOC, DOCX, TXT"
+    return Object.values(accept)
+      .flat()
+      .map((type: string) => type.toUpperCase().replace('.', ''))
+      .join(', ')
+  }
 
   return (
     <div className="w-full">
@@ -87,7 +95,7 @@ export function FileUpload({
                 ref={fileInputRef}
                 className="hidden"
                 multiple={multiple}
-                accept={acceptedFileTypes}
+                accept={Object.keys(accept || {}).join(',')}
                 onChange={handleFileChange}
               />
               <p className="text-sm text-gray-500">

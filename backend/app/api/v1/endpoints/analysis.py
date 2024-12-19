@@ -98,16 +98,16 @@ async def analyze_resume(request: AnalysisRequest):
             "resumeId": request.resume_id,
             "fileName": resume_data[0],
             "parsed_resume": {
-                "original_text": resume_result['markdown_content'],
+                "original_text": resume_result['original_text'],
                 "markdown_content": resume_result['markdown_content'],
                 "structured_data": resume_result['structured_data']
             },
             "parsed_job_description": {
-                "original_text": job_desc_result['markdown_content'],
+                "original_text": job_desc_result['original_text'],
                 "markdown_content": job_desc_result['markdown_content'],
                 "structured_data": job_desc_result['structured_data']
             },
-            "analysis_results": analysis_result  # Return the full OpenAI analysis
+            "analysis_results": analysis_result
         }
 
     except Exception as e:
