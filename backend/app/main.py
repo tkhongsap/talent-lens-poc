@@ -1,6 +1,6 @@
 from fastapi import FastAPI, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, FileResponse, Response
 from app.api.v1.api import api_router
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import logging
@@ -243,8 +243,7 @@ async def shutdown_event():
 
 @app.get('/favicon.ico', include_in_schema=False)
 async def favicon():
-    # Option 1: Return an empty response
-    return FileResponse(status_code=204)  # No Content
-
-    # Option 2: Return an actual favicon if you have one
-    # return FileResponse('path/to/favicon.ico')
+    favicon_path = os.path.join(os.path.dirname(__file__), "static", "favicon.ico")
+    if os.path.exists(favicon_path):
+        return FileResponse(favicon_path)
+    return Response(status_code=204)

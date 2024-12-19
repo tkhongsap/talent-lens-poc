@@ -117,7 +117,7 @@ export default function ResumeAnalysis() {
                 multiple={true}
                 onFilesSelected={setResumes}
                 maxFiles={10}
-                acceptedFileTypes=".pdf,.doc,.docx"
+                acceptedFileTypes=".pdf,.doc,.docx,.txt"
               />
               {resumes.length > 0 && (
                 <div className="mt-4">
@@ -219,34 +219,6 @@ export default function ResumeAnalysis() {
                         <p className="text-gray-500">No parsed content available.</p>
                       )}
                     </div>
-
-                    {/* Existing Analysis Results */}
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span>Overall Match:</span>
-                        <span className="font-bold">{result.analysis_results.overallFit}%</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Skills Match:</span>
-                        <span>{result.analysis_results.skillsMatch}%</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Experience Match:</span>
-                        <span>{result.analysis_results.experienceMatch}%</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Education Match:</span>
-                        <span>{result.analysis_results.educationMatch}%</span>
-                      </div>
-                      <div className="mt-4">
-                        <h4 className="font-medium mb-2">Recommendations:</h4>
-                        <ul className="list-disc list-inside space-y-1">
-                          {result.analysis_results.recommendations.map((rec: string, idx: number) => (
-                            <li key={idx} className="text-sm text-gray-600">{rec}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -254,7 +226,7 @@ export default function ResumeAnalysis() {
           </div>
         )}
 
-        {/* Existing Results Section */}
+        {/* Analysis Results Section */}
         {results.length > 0 && (
           <div className="mt-8">
             <h2 className="text-xl font-bold mb-4">Analysis Results</h2>
@@ -265,21 +237,6 @@ export default function ResumeAnalysis() {
                     <CardTitle>{result.fileName}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {/* Parsed Content Section */}
-                    <div className="mb-6">
-                      <h3 className="font-semibold mb-2">Parsed Resume Content</h3>
-                      <pre className="bg-gray-50 p-4 rounded-md overflow-auto max-h-60 text-sm">
-                        {result.parsed_resume?.markdown_content || 'No content available'}
-                      </pre>
-                    </div>
-                    
-                    <div className="mb-6">
-                      <h3 className="font-semibold mb-2">Parsed Job Description</h3>
-                      <pre className="bg-gray-50 p-4 rounded-md overflow-auto max-h-60 text-sm">
-                        {result.parsed_job_description?.markdown_content || 'No content available'}
-                      </pre>
-                    </div>
-
                     {/* Analysis Results */}
                     <div className="space-y-2">
                       <div className="flex justify-between">
