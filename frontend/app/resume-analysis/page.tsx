@@ -6,7 +6,13 @@ import { FileUpload } from "@/components/file-upload"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { uploadResumes, uploadJobDescription, analyzeResume } from "@/lib/api-client"
-import { Loader2, User, FileText } from 'lucide-react'
+import { Loader2, User, FileText, Copy, Check } from 'lucide-react'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
+import { ChevronDown, ChevronUp } from 'lucide-react'
 
 interface ParsedContent {
   original_text: string;
@@ -60,6 +66,8 @@ export default function ResumeAnalysis() {
   const [error, setError] = useState<string | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [results, setResults] = useState<AnalysisResult[]>([])
+  const [copiedStates, setCopiedStates] = useState<{ [key: string]: boolean }>({})
+  const [openStates, setOpenStates] = useState<{ [key: string]: boolean }>({})
 
   const handleAnalyze = async () => {
     if (resumes.length === 0 || !jobDescription.length) {
@@ -123,6 +131,22 @@ export default function ResumeAnalysis() {
     console.log('Uploading job description:', jobDescription);
     console.log('Uploading resumes:', resumes);
   };
+
+  const handleCopy = async (text: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopiedStates(prev => ({ ...prev, [id]: true }))
+      setTimeout(() => {
+        setCopiedStates(prev => ({ ...prev, [id]: false }))
+      }, 2000)
+    } catch (err) {
+      console.error('Failed to copy text:', err)
+    }
+  }
+
+  const toggleCollapse = (id: string) => {
+    setOpenStates(prev => ({ ...prev, [id]: !prev[id] }))
+  }
 
   return (
     <Layout>
@@ -209,12 +233,48 @@ export default function ResumeAnalysis() {
                     <CardTitle>{result.fileName}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="mb-4">
-                      <h3 className="text-lg font-semibold mb-2">Resume Summary</h3>
-                      <pre className="bg-gray-50 p-4 rounded-md overflow-auto text-sm whitespace-pre-wrap">
-                        {result.parsed_resume.original_text}
-                      </pre>
-                    </div>
+                    <Collapsible
+                      open={openStates[`content-${index}`] !== false}
+                      onOpenChange={() => toggleCollapse(`content-${index}`)}
+                    >
+                      <div className="flex justify-between items-center mb-2">
+                        <div className="flex items-center gap-2">
+                          <CollapsibleTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              {openStates[`content-${index}`] === false ? (
+                                <ChevronDown className="h-4 w-4" />
+                              ) : (
+                                <ChevronUp className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </CollapsibleTrigger>
+                          <h3 className="text-lg font-semibold">Resume Summary</h3>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 px-2"
+                          onClick={() => handleCopy(result.parsed_resume.original_text, `resume-${index}`)}
+                        >
+                          {copiedStates[`resume-${index}`] ? (
+                            <>
+                              <Check className="h-4 w-4 mr-2" />
+                              Copied
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-4 w-4 mr-2" />
+                              Copy
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      <CollapsibleContent>
+                        <pre className="bg-gray-50 p-4 rounded-md overflow-auto text-sm whitespace-pre-wrap">
+                          {result.parsed_resume.original_text}
+                        </pre>
+                      </CollapsibleContent>
+                    </Collapsible>
                   </CardContent>
                 </Card>
               ))}
