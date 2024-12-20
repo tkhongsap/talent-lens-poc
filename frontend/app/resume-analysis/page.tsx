@@ -154,12 +154,6 @@ export default function ResumeAnalysis() {
         <h1 className="text-2xl font-bold mb-8">Resume Analysis</h1>
         <p className="text-gray-600 mb-8">Compare resumes with job descriptions</p>
 
-        {error && (
-          <div className="bg-red-50 text-red-500 p-4 rounded-md mb-4">
-            {error}
-          </div>
-        )}
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Resume Upload Section */}
           <div>
@@ -206,6 +200,12 @@ export default function ResumeAnalysis() {
           </div>
         </div>
 
+        {error && (
+          <div className="bg-red-50 text-red-500 p-4 rounded-md mb-4">
+            {error}
+          </div>
+        )}
+
         <div className="mt-8 flex justify-center">
           <Button
             onClick={handleAnalyze}
@@ -230,7 +230,29 @@ export default function ResumeAnalysis() {
               {results.map((result, index) => (
                 <Card key={index} className="bg-white shadow-sm">
                   <CardHeader>
-                    <CardTitle>{result.fileName}</CardTitle>
+                    <div className="flex justify-between items-center">
+                      <CardTitle>{result.fileName}</CardTitle>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 px-2"
+                          onClick={() => handleCopy(result.parsed_resume.original_text, `resume-${index}`)}
+                        >
+                          {copiedStates[`resume-${index}`] ? (
+                            <>
+                              <Check className="h-4 w-4 mr-2" />
+                              Copied
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-4 w-4 mr-2" />
+                              Copy
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <Collapsible
@@ -250,24 +272,6 @@ export default function ResumeAnalysis() {
                           </CollapsibleTrigger>
                           <h3 className="text-lg font-semibold">Resume Summary</h3>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 px-2"
-                          onClick={() => handleCopy(result.parsed_resume.original_text, `resume-${index}`)}
-                        >
-                          {copiedStates[`resume-${index}`] ? (
-                            <>
-                              <Check className="h-4 w-4 mr-2" />
-                              Copied
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="h-4 w-4 mr-2" />
-                              Copy
-                            </>
-                          )}
-                        </Button>
                       </div>
                       <CollapsibleContent>
                         <pre className="bg-gray-50 p-4 rounded-md overflow-auto text-sm whitespace-pre-wrap">
