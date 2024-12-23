@@ -311,25 +311,184 @@ export default function ResumeAnalysis() {
                         <span>Experience Match:</span>
                         <span>{result.analysis_results?.experienceMatch ?? 0}%</span>
                       </div>
-                      {/* Recommendations Section */}
-                      {result.analysis_results?.recommendations && 
-                       result.analysis_results.recommendations.length > 0 && (
-                        <div className="mt-4">
-                          <h4 className="font-medium mb-2">Recommendations:</h4>
-                          <ul className="list-disc list-inside space-y-1">
-                            {result.analysis_results.recommendations.map((rec: string, idx: number) => (
-                              <li key={idx} className="text-sm text-gray-600">{rec}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
                       {/* Detailed Analysis Section */}
                       {result.analysis_results?.detailed_analysis && (
-                        <div className="mt-4">
-                          <h4 className="font-medium mb-2">Detailed Analysis:</h4>
-                          <pre className="bg-gray-50 p-4 rounded-md overflow-auto text-sm">
-                            {JSON.stringify(result.analysis_results.detailed_analysis, null, 2)}
-                          </pre>
+                        <div className="mt-4 space-y-6">
+                          {/* Executive Summary */}
+                          {result.analysis_results.detailed_analysis.executive_summary && (
+                            <div>
+                              <h4 className="text-lg font-semibold text-blue-600 mb-2">Executive Summary</h4>
+                              <p className="text-gray-700">
+                                {result.analysis_results.detailed_analysis.executive_summary}
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Overall Assessment */}
+                          {result.analysis_results.detailed_analysis.fit_analysis?.overall_assessment && (
+                            <div>
+                              <h4 className="text-lg font-semibold text-blue-600 mb-2">Overall Assessment</h4>
+                              <p className="text-gray-700">
+                                {result.analysis_results.detailed_analysis.fit_analysis.overall_assessment}
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Key Points */}
+                          {result.analysis_results.detailed_analysis.key_strengths && (
+                            <div>
+                              <h4 className="text-lg font-semibold text-blue-600 mb-2">Key Points</h4>
+                              <div className="space-y-4">
+                                {/* Skills */}
+                                {result.analysis_results.detailed_analysis.key_strengths.skills && (
+                                  <div className="ml-4">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                        1
+                                      </div>
+                                      <span className="font-medium">Key Skills</span>
+                                    </div>
+                                    <ul className="list-none ml-8">
+                                      {result.analysis_results.detailed_analysis.key_strengths.skills.map((skill, idx) => (
+                                        <li key={idx} className="text-gray-700">{skill}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+
+                                {/* Experience */}
+                                {result.analysis_results.detailed_analysis.key_strengths.experience && (
+                                  <div className="ml-4">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                        2
+                                      </div>
+                                      <span className="font-medium">Relevant Experience</span>
+                                    </div>
+                                    <ul className="list-none ml-8">
+                                      {result.analysis_results.detailed_analysis.key_strengths.experience.map((exp, idx) => (
+                                        <li key={idx} className="text-gray-700">{exp}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+
+                                {/* Notable Achievements */}
+                                {result.analysis_results.detailed_analysis.key_strengths.notable_achievements && (
+                                  <div className="ml-4">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                        3
+                                      </div>
+                                      <span className="font-medium">Notable Achievements</span>
+                                    </div>
+                                    <ul className="list-none ml-8">
+                                      {result.analysis_results.detailed_analysis.key_strengths.notable_achievements.map((achievement, idx) => (
+                                        <li key={idx} className="text-gray-700">{achievement}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Areas for Development */}
+                          {result.analysis_results.detailed_analysis.areas_for_development && (
+                            <div>
+                              <h4 className="text-lg font-semibold text-blue-600 mb-2">Areas for Development</h4>
+                              <div className="space-y-4">
+                                {/* Skills Gaps */}
+                                {result.analysis_results.detailed_analysis.areas_for_development.skills_gaps && (
+                                  <div className="ml-4">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                        4
+                                      </div>
+                                      <span className="font-medium">Skills to Develop</span>
+                                    </div>
+                                    <ul className="list-none ml-8">
+                                      {result.analysis_results.detailed_analysis.areas_for_development.skills_gaps.map((gap, idx) => (
+                                        <li key={idx} className="text-gray-700">{gap}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+
+                                {/* Experience Gaps */}
+                                {result.analysis_results.detailed_analysis.areas_for_development.experience_gaps && (
+                                  <div className="ml-4">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                        5
+                                      </div>
+                                      <span className="font-medium">Experience Gaps</span>
+                                    </div>
+                                    <ul className="list-none ml-8">
+                                      {result.analysis_results.detailed_analysis.areas_for_development.experience_gaps.map((gap, idx) => (
+                                        <li key={idx} className="text-gray-700">{gap}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Score Breakdown */}
+                          {result.analysis_results.detailed_analysis.score_breakdown && (
+                            <div>
+                              <h4 className="text-lg font-semibold text-blue-600 mb-2">Score Breakdown</h4>
+                              <div className="space-y-4">
+                                {/* Skills Match */}
+                                {result.analysis_results.detailed_analysis.score_breakdown.skills_match && (
+                                  <div className="ml-4">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                        💡
+                                      </div>
+                                      <span className="font-medium">Skills Match</span>
+                                    </div>
+                                    <p className="text-gray-700 ml-8">
+                                      {result.analysis_results.detailed_analysis.score_breakdown.skills_match}
+                                    </p>
+                                  </div>
+                                )}
+
+                                {/* Experience Match */}
+                                {result.analysis_results.detailed_analysis.score_breakdown.experience_match && (
+                                  <div className="ml-4">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                        💡
+                                      </div>
+                                      <span className="font-medium">Experience Match</span>
+                                    </div>
+                                    <p className="text-gray-700 ml-8">
+                                      {result.analysis_results.detailed_analysis.score_breakdown.experience_match}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Additional Notes */}
+                          {result.analysis_results.detailed_analysis.interesting_fact && (
+                            <div>
+                              <h4 className="text-lg font-semibold text-blue-600 mb-2">Additional Notes</h4>
+                              <div className="ml-4 bg-yellow-50 p-4 rounded-md">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                    ✨
+                                  </div>
+                                  <p className="text-gray-700">
+                                    {result.analysis_results.detailed_analysis.interesting_fact}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
