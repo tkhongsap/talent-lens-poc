@@ -33,24 +33,48 @@ class AnalysisService:
                     {"role": "system", "content": FIT_SCORE_SYSTEM_PROMPT},
                     {"role": "user", "content": json.dumps(input_content)}
                 ],
-                temperature=0.3,
+                temperature=0.5,
                 response_format={"type": "json_object"}
             )
 
             # Parse the response
             analysis_result = json.loads(completion.choices[0].message.content)
+            logger.info(f"\n\n\033[94mAnalysis result:\033[0m {analysis_result}\n\n")
             logger.info("Successfully generated analysis using OpenAI")
 
             # Transform the analysis result to match the expected frontend format
             transformed_result = {
-                "overallFit": analysis_result.get("fit_analysis", {}).get("fit_score", 0),
-                "skillsMatch": int(analysis_result.get("score_breakdown", {}).get("skills_match", "0").split()[0]) if isinstance(analysis_result.get("score_breakdown", {}).get("skills_match"), str) else analysis_result.get("score_breakdown", {}).get("skills_match", 0),
-                "experienceMatch": int(analysis_result.get("score_breakdown", {}).get("experience_match", "0").split()[0]) if isinstance(analysis_result.get("score_breakdown", {}).get("experience_match"), str) else analysis_result.get("score_breakdown", {}).get("experience_match", 0),
+                "overallFit": int(analysis_result.get("fit_analysis", {}).get("fit_score", 0)),
+                "skillsMatch": int(analysis_result.get("score_breakdown", {}).get("skills_match", {}).get("score", 0)),
+                "experienceMatch": int(analysis_result.get("score_breakdown", {}).get("experience_match", {}).get("score", 0)),
                 "recommendations": [],  # Initialize empty array
-                "detailed_analysis": analysis_result  # Keep the full analysis for reference
+                "detailed_analysis": {
+                    "executive_summary": analysis_result.get("executive_summary"),
+                    "fit_analysis": {
+                        "overall_assessment": analysis_result.get("fit_analysis", {}).get("overall_assessment"),
+                        "fit_score": int(analysis_result.get("fit_analysis", {}).get("fit_score", 0))
+                    },
+                    "key_strengths": {
+                        "skills": analysis_result.get("key_strengths", {}).get("skills", []),
+                        "experience": analysis_result.get("key_strengths", {}).get("experience", []),
+                        "notable_achievements": analysis_result.get("key_strengths", {}).get("notable_achievements", [])
+                    },
+                    "areas_for_development": {
+                        "skills_gaps": analysis_result.get("areas_for_development", {}).get("skills_gaps", []),
+                        "experience_gaps": analysis_result.get("areas_for_development", {}).get("experience_gaps", []),
+                        "recommendations": analysis_result.get("areas_for_development", {}).get("recommendations", [])
+                    },
+                    "score_breakdown": {
+                        "skills_match": str(analysis_result.get("score_breakdown", {}).get("skills_match", {}).get("score", 0)) + "% - " + 
+                                      analysis_result.get("score_breakdown", {}).get("skills_match", {}).get("explanation", ""),
+                        "experience_match": str(analysis_result.get("score_breakdown", {}).get("experience_match", {}).get("score", 0)) + "% - " + 
+                                          analysis_result.get("score_breakdown", {}).get("experience_match", {}).get("explanation", "")
+                    },
+                    "interesting_fact": analysis_result.get("interesting_fact")
+                }
             }
 
-            # Add recommendations if available
+            # Add recommendations
             if analysis_result.get("executive_summary"):
                 transformed_result["recommendations"].append(analysis_result["executive_summary"])
             
@@ -59,7 +83,7 @@ class AnalysisService:
                     f"Overall Assessment: {analysis_result['fit_analysis']['overall_assessment']}"
                 )
 
-            # Add key strengths
+            # Add key strengths to recommendations
             if analysis_result.get("key_strengths"):
                 strengths = analysis_result["key_strengths"]
                 if strengths.get("skills"):
@@ -71,7 +95,7 @@ class AnalysisService:
                         f"Relevant Experience: {', '.join(strengths['experience'])}"
                     )
 
-            # Add development areas
+            # Add development areas to recommendations
             if analysis_result.get("areas_for_development"):
                 dev = analysis_result["areas_for_development"]
                 if dev.get("skills_gaps"):
