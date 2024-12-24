@@ -6,7 +6,7 @@ import { FileUpload } from "@/components/file-upload"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { uploadResumes, uploadJobDescription, analyzeResume } from "@/lib/api-client"
-import { Loader2, User, FileText, Copy, Check } from 'lucide-react'
+import { Loader2, User, FileText, Copy, Check, Brain, Briefcase, CheckCircle } from 'lucide-react'
 import {
   Collapsible,
   CollapsibleContent,
@@ -292,32 +292,55 @@ export default function ResumeAnalysis() {
             <h2 className="text-xl font-bold mb-4">Analysis Results</h2>
             <div className="space-y-4">
               {results.map((result, index) => (
-                <Card key={index} className="bg-white shadow-sm">
+                <Card key={index} className="bg-gray-50 shadow-sm">
                   <CardHeader>
                     <CardTitle>{result.fileName}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {/* Analysis Results */}
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span>Overall Match:</span>
-                        <span className="font-bold">{result.analysis_results?.overallFit ?? 0}%</span>
+                    {/* Score Cards Row */}
+                    <div className="grid grid-cols-3 gap-4 mb-6">
+                      {/* Overall Match Score Card */}
+                      <div className="bg-white p-4 rounded-lg shadow-sm">
+                        <div className="flex flex-col items-center">
+                          <CheckCircle className="w-8 h-8 text-blue-500 mb-2" />
+                          <span className="text-3xl font-bold text-blue-600">
+                            {result.analysis_results?.overallFit ?? 0}%
+                          </span>
+                          <span className="text-sm text-gray-600 mt-1">Overall Match</span>
+                        </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span>Skills Match:</span>
-                        <span>{result.analysis_results?.skillsMatch ?? 0}%</span>
+
+                      {/* Skills Match Score Card */}
+                      <div className="bg-white p-4 rounded-lg shadow-sm">
+                        <div className="flex flex-col items-center">
+                          <Brain className="w-8 h-8 text-purple-500 mb-2" />
+                          <span className="text-3xl font-bold text-purple-600">
+                            {result.analysis_results?.skillsMatch ?? 0}%
+                          </span>
+                          <span className="text-sm text-gray-600 mt-1">Skills Match</span>
+                        </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span>Experience Match:</span>
-                        <span>{result.analysis_results?.experienceMatch ?? 0}%</span>
+
+                      {/* Experience Match Score Card */}
+                      <div className="bg-white p-4 rounded-lg shadow-sm">
+                        <div className="flex flex-col items-center">
+                          <Briefcase className="w-8 h-8 text-green-500 mb-2" />
+                          <span className="text-3xl font-bold text-green-600">
+                            {result.analysis_results?.experienceMatch ?? 0}%
+                          </span>
+                          <span className="text-sm text-gray-600 mt-1">Experience Match</span>
+                        </div>
                       </div>
-                      {/* Detailed Analysis Section */}
+                    </div>
+
+                    {/* Detailed Analysis Section */}
+                    <div className="bg-white p-6 rounded-lg">
                       {result.analysis_results?.detailed_analysis && (
-                        <div className="mt-4 space-y-6">
+                        <div className="space-y-6">
                           {/* Executive Summary */}
                           {result.analysis_results.detailed_analysis.executive_summary && (
                             <div>
-                              <h4 className="text-lg font-semibold text-blue-600 mb-2">Executive Summary</h4>
+                              <h4 className="text-lg font-semibold text-gray-900 mb-2">Executive Summary</h4>
                               <p className="text-gray-700">
                                 {result.analysis_results.detailed_analysis.executive_summary}
                               </p>
@@ -327,7 +350,7 @@ export default function ResumeAnalysis() {
                           {/* Overall Assessment */}
                           {result.analysis_results.detailed_analysis.fit_analysis?.overall_assessment && (
                             <div>
-                              <h4 className="text-lg font-semibold text-blue-600 mb-2">Overall Assessment</h4>
+                              <h4 className="text-lg font-semibold text-gray-900 mb-2">Overall Assessment</h4>
                               <p className="text-gray-700">
                                 {result.analysis_results.detailed_analysis.fit_analysis.overall_assessment}
                               </p>
@@ -337,7 +360,7 @@ export default function ResumeAnalysis() {
                           {/* Key Points */}
                           {result.analysis_results.detailed_analysis.key_strengths && (
                             <div>
-                              <h4 className="text-lg font-semibold text-blue-600 mb-2">Key Points</h4>
+                              <h4 className="text-lg font-semibold text-gray-900 mb-2">Key Points</h4>
                               <div className="space-y-4">
                                 {/* Skills */}
                                 {result.analysis_results.detailed_analysis.key_strengths.skills && (
@@ -396,7 +419,7 @@ export default function ResumeAnalysis() {
                           {/* Areas for Development */}
                           {result.analysis_results.detailed_analysis.areas_for_development && (
                             <div>
-                              <h4 className="text-lg font-semibold text-blue-600 mb-2">Areas for Development</h4>
+                              <h4 className="text-lg font-semibold text-gray-900 mb-2">Areas for Development</h4>
                               <div className="space-y-4">
                                 {/* Skills Gaps */}
                                 {result.analysis_results.detailed_analysis.areas_for_development.skills_gaps && (
@@ -438,7 +461,7 @@ export default function ResumeAnalysis() {
                           {/* Score Breakdown */}
                           {result.analysis_results.detailed_analysis.score_breakdown && (
                             <div>
-                              <h4 className="text-lg font-semibold text-blue-600 mb-2">Score Breakdown</h4>
+                              <h4 className="text-lg font-semibold text-gray-900 mb-2">Score Breakdown</h4>
                               <div className="space-y-4">
                                 {/* Skills Match */}
                                 {result.analysis_results.detailed_analysis.score_breakdown.skills_match && (
@@ -476,7 +499,7 @@ export default function ResumeAnalysis() {
                           {/* Additional Notes */}
                           {result.analysis_results.detailed_analysis.interesting_fact && (
                             <div>
-                              <h4 className="text-lg font-semibold text-blue-600 mb-2">Additional Notes</h4>
+                              <h4 className="text-lg font-semibold text-gray-900 mb-2">Additional Notes</h4>
                               <div className="ml-4 bg-yellow-50 p-4 rounded-md">
                                 <div className="flex items-center gap-2 mb-2">
                                   <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
