@@ -10,7 +10,16 @@ settings = get_settings()
 
 class AnalysisService:
     def __init__(self):
-        self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+        openai_api_key = settings.OPENAI_API_KEY.strip()
+        if not openai_api_key:
+            raise ValueError("OpenAI API key not found in settings")
+            
+        self.client = AsyncOpenAI(
+            api_key=openai_api_key,
+            base_url="https://api.openai.com/v1",
+            max_retries=3,
+            timeout=30.0
+        )
         self.model = settings.OPENAI_MODEL
 
     async def analyze_resume_fit(self, resume_data: Dict, job_data: Dict) -> Dict:

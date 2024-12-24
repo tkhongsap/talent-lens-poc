@@ -1,6 +1,6 @@
 from llama_parse import LlamaParse
 from openai import AsyncOpenAI
-from ..core.config import get_settings
+from ..core.config import get_settings, refresh_settings
 from ..utils.prompting_instructions import (
     JOB_DESCRIPTION_PARSER_SYSTEM_PROMPT,
     RESUME_PARSER_SYSTEM_PROMPT,
@@ -14,15 +14,35 @@ import os
 import traceback
 
 logger = logging.getLogger(__name__)
-settings = get_settings()
 
 class ParserService:
     def __init__(self):
+        logger.info("Initializing ParserService...")
+        
+        # Refresh settings to ensure we get latest env vars
+        refresh_settings()
+        settings = get_settings()
+        
+        # Debug logging
+        logger.info(f"LLAMA_CLOUD_API_KEY from env: {os.getenv('LLAMA_CLOUD_API_KEY')[:10]}...")
+        logger.info(f"LLAMA_CLOUD_API_KEY from settings: {settings.LLAMA_CLOUD_API_KEY[:10]}...")
+        
+        if not settings.LLAMA_CLOUD_API_KEY:
+            logger.error("LLAMA_CLOUD_API_KEY is empty or not set")
+            raise ValueError("LlamaParse API key not found in settings")
+            
         self.llama_parser = LlamaParse(
-            api_key=settings.LLAMA_CLOUD_API_KEY,
+            api_key=settings.LLAMA_CLOUD_API_KEY.strip(),
             result_type="markdown"
         )
-        self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+        
+        if not settings.OPENAI_API_KEY:
+            logger.error("OPENAI_API_KEY is empty or not set")
+            raise ValueError("OpenAI API key not found in settings")
+            
+        self.client = AsyncOpenAI(
+            api_key=settings.OPENAI_API_KEY.strip()
+        )
         self.model = settings.OPENAI_MODEL
 
     async def parse_document(self, file_data: Tuple[str, bytes], is_resume: bool = True) -> dict:
@@ -69,32 +89,37 @@ class ParserService:
                 logger.info("Starting OpenAI processing...")
                 system_prompt = RESUME_SUMMARIZER_SYSTEM_PROMPT if is_resume else JOB_DESCRIPTION_PARSER_SYSTEM_PROMPT
                 
-                completion = await self.client.chat.completions.create(
-                    model=self.model,
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": f"Parse this content:\n\n{markdown_content}"}
-                    ],
-                    temperature=0.3,
-                    seed=42
-                )
-                
-                raw_response = completion.choices[0].message.content
-                
-                logger.info("Successfully processed content with OpenAI")
-                
-                return {
-                    "filename": filename,
-                    "original_text": raw_response,
-                    "markdown_content": markdown_content,
-                    "structured_data": {}
-                }
-                
+                try:
+                    completion = await self.client.chat.completions.create(
+                        model=self.model,
+                        messages=[
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": f"Parse this content:\n\n{markdown_content}"}
+                        ],
+                        temperature=0.3,
+                        seed=42
+                    )
+                    
+                    raw_response = completion.choices[0].message.content
+                    
+                    logger.info("Successfully processed content with OpenAI")
+                    
+                    return {
+                        "filename": filename,
+                        "original_text": raw_response,
+                        "markdown_content": markdown_content,
+                        "structured_data": {}
+                    }
+                    
+                except Exception as e:
+                    logger.error(f"OpenAI processing failed: {str(e)}")
+                    raise
+                    
             except Exception as e:
                 logger.error(f"LlamaParse extraction failed: {str(e)}")
                 logger.error(f"Full error: {traceback.format_exc()}")
                 raise
-            
+                
         except Exception as e:
             logger.error(f"Error in parse_document: {str(e)}")
             logger.error(f"Traceback: {traceback.format_exc()}")
